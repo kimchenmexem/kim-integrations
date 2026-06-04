@@ -1,0 +1,37 @@
+{
+  "overallScore": 0.92,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.93,
+  "readability": 0.88,
+  "ctaPlacement": 0.92,
+  "brandConsistency": 0.95,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant is a near-faithful reproduction of the source; composition, palette, and block placement all match closely.",
+      "location": "overall"
+    },
+    {
+      "severity": "info",
+      "category": "readability",
+      "message": "Disclaimer text at the bottom is very small (~7-8px effective) and slightly low contrast against the dark navy background, though this is consistent with the source treatment.",
+      "location": "DisclaimerBlock"
+    },
+    {
+      "severity": "info",
+      "category": "ctaPlacement",
+      "message": "CTA pill sits close to the right edge (~12px padding); within tolerance but on the tighter side of the ≥16px guideline.",
+      "location": "CTABlock"
+    }
+  ],
+  "notes": "High-fidelity variant of the source. Hierarchy (headline → CTA → supporting copy → disclaimer) is preserved, brand palette and wordmark treatment match, and the CTA pill is clearly legible. Only minor cosmetic notes.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 393,
+    "cache_creation_input_tokens": 244,
+    "cache_read_input_tokens": 2642
+  },
+  "generatedAt": "2026-06-01T09:25:13.627Z"
+}

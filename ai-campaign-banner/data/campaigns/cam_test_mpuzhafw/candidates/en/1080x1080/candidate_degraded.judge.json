@@ -1,0 +1,48 @@
+{
+  "overallScore": 0.28,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.4,
+  "readability": 0.2,
+  "ctaPlacement": 0.25,
+  "brandConsistency": 0.85,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline is severely clipped on the right edge — reads 'BUY ETFs COM' with the remainder ('MISSION FREE' or similar) cut off by the canvas. The full message is unreadable.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA pill is clipped by the right canvas edge and its label reads only 'START' with the trailing word (likely 'INVESTING') cut off. The CTA also has no right padding from the canvas edge.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "CTA label is truncated mid-word at the canvas boundary, making the call-to-action incomplete.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because both headline and CTA are clipped, the visual reading order collapses — viewer cannot resolve the primary message or the action.",
+      "location": "HeadlineBlock, CTABlock"
+    },
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant appears visually identical to the source, including reproducing the same clipping issues rather than correcting them for the 1080x1080 format."
+    }
+  ],
+  "notes": "Variant mirrors the source 1:1 but inherits the same critical clipping on both the headline and CTA. Not shippable until text is re-fit within the 1080x1080 canvas with adequate padding.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 6,
+    "output_tokens": 557,
+    "cache_creation_input_tokens": 3172,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:06:50.186Z"
+}

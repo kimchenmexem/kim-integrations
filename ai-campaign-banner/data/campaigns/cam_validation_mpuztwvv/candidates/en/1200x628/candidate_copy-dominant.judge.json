@@ -1,0 +1,25 @@
+{
+  "overallScore": 0.96,
+  "sourceSimilarity": 0.98,
+  "hierarchy": 0.95,
+  "readability": 0.95,
+  "ctaPlacement": 0.95,
+  "brandConsistency": 0.98,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Headline and subheadline appear shifted slightly upward compared to the source, creating marginally more empty space in the middle section. Negligible impact.",
+      "location": "HeadlineBlock"
+    }
+  ],
+  "notes": "Variant is essentially a faithful reproduction of the source at the same format. Composition, palette, typography, and CTA treatment all match. Production-ready.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 314,
+    "output_tokens": 218,
+    "cache_creation_input_tokens": 2003,
+    "cache_read_input_tokens": 2643
+  },
+  "generatedAt": "2026-06-01T09:23:22.628Z"
+}

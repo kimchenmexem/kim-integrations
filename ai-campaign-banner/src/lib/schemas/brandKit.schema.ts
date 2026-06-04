@@ -1,0 +1,565 @@
+import { z } from "zod";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Brand Kit Lite — the brand's source of truth for the MVP.
+//
+// Replaces Figma styles/variables with a single JSON document that the AI
+// planner, the manifest builder, and the QA layer all read from. Field names
+// are snake_case so the file ports cleanly to external systems and to a future
+// Figma importer (Figma Variables and Figma styles map onto these sections).
+// See docs/ARCHITECTURE.md > "Brand Kit Lite" for the why.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const HexColorSchema = z
+  .string()
+  .regex(/^#([0-9a-fA-F]{3}){1,2}$/, "must be a hex color like #112233");
+
+// Mirrors CampaignFormatSchema in campaignBrief.schema. Adding a value here
+// is required so brand-kit-lite.generated.json can carry per-format
+// typography / outer_margins / safe_areas entries for the new format.
+export const FormatKeySchema = z.enum([
+  "1200x628",
+  "1080x1080",
+  "1080x1920",
+  "1200x1200",
+  "300x250",
+  "336x280",
+  "960x1200",
+  // MEXEM Set 2 — IAB / display standard sizes.
+  "320x100",
+  "320x50",
+  "300x1050",
+  "300x600",
+  "160x600",
+  "970x250",
+  "728x90",
+  "250x250",
+]);
+export type FormatKey = z.infer<typeof FormatKeySchema>;
+
+// ── Logo ─────────────────────────────────────────────────────────────────────
+export const LogoVariantSchema = z.object({
+  name: z.string().min(1), // e.g. "primary", "mono-light", "mono-dark", "stacked"
+  url: z.string().url(),
+  format: z.enum(["svg", "png", "jpg", "webp"]),
+  background: z.enum(["light", "dark", "transparent", "any"]).default("any"),
+});
+export type LogoVariant = z.infer<typeof LogoVariantSchema>;
+
+export const LogoPositionSchema = z.enum([
+  "top-left",
+  "top-center",
+  "top-right",
+  "middle-left",
+  "middle-center",
+  "middle-right",
+  "bottom-left",
+  "bottom-center",
+  "bottom-right",
+]);
+export type LogoPosition = z.infer<typeof LogoPositionSchema>;
+
+export const LogoSchema = z.object({
+  variants: z.array(LogoVariantSchema).min(1),
+  favicon: z
+    .object({
+      url: z.string().url(),
+      sizes: z.array(z.string()).optional(), // e.g. ["32x32", "180x180"]
+    })
+    .optional(),
+  allowed_positions: z.array(LogoPositionSchema).default([
+    "top-left",
+    "top-right",
+    "bottom-left",
+    "bottom-right",
+  ]),
+  // Smallest allowed render size (whichever is more restrictive applies).
+  minimum_size: z
+    .object({
+      width_px: z.number().positive().optional(),
+      percent_of_canvas_width: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
+  // Clearance the logo must keep from canvas edges and other elements.
+  safe_area: z
+    .object({
+      padding_px: z.number().nonnegative().optional(),
+      padding_percent_of_logo_height: z.number().nonnegative().optional(),
+    })
+    .optional(),
+  // Per-format explicit logo box dimensions sourced from the MEXEM banner
+  // spec. When present for the active format, computeLayout uses these
+  // verbatim instead of the height-from-canvas + aspect-from-variant
+  // derivation. Partial record: formats without an entry use the derivation.
+  size_per_format: z
+    .record(
+      FormatKeySchema,
+      z
+        .object({
+          width: z.number().positive(),
+          height: z.number().positive(),
+        })
+        .optional(),
+    )
+    .optional(),
+});
+export type Logo = z.infer<typeof LogoSchema>;
+
+// ── Colors ───────────────────────────────────────────────────────────────────
+export const GradientStopSchema = z.object({
+  color: HexColorSchema,
+  position: z.number().min(0).max(1), // 0 to 1
+});
+
+export const AllowedGradientSchema = z.object({
+  name: z.string().min(1),
+  angle_deg: z.number().optional(),
+  stops: z.array(GradientStopSchema).min(2),
+});
+export type AllowedGradient = z.infer<typeof AllowedGradientSchema>;
+
+export const ColorsSchema = z.object({
+  primary: z.array(HexColorSchema).min(1),
+  secondary: z.array(HexColorSchema).default([]),
+  accent: z.array(HexColorSchema).default([]),
+  background: z.array(HexColorSchema).default([]),
+  text: z.array(HexColorSchema).default([]),
+  disclaimer: z.array(HexColorSchema).default([]),
+  allowed_gradients: z.array(AllowedGradientSchema).default([]),
+  forbidden: z.array(HexColorSchema).default([]),
+});
+export type Colors = z.infer<typeof ColorsSchema>;
+
+// ── Typography ───────────────────────────────────────────────────────────────
+export const FontFamiliesSchema = z.object({
+  headline: z.string().min(1),
+  body: z.string().min(1),
+  cta: z.string().min(1),
+  disclaimer: z.string().min(1),
+});
+
+// font_size per format per role.
+//   sizes_per_format["1080x1080"].headline → number (px)
+const SizeRoleSchema = z.object({
+  headline: z.number().positive().optional(),
+  subheadline: z.number().positive().optional(),
+  body: z.number().positive().optional(),
+  cta: z.number().positive().optional(),
+  disclaimer: z.number().positive().optional(),
+});
+
+const PerRoleNumberSchema = z.object({
+  headline: z.number().optional(),
+  body: z.number().optional(),
+  cta: z.number().optional(),
+  disclaimer: z.number().optional(),
+});
+
+export const TextRulesSchema = z.object({
+  max_chars: z.number().int().positive().optional(),
+  max_lines: z.number().int().positive().optional(),
+  allow_uppercase: z.boolean().optional(),
+  allow_lowercase: z.boolean().optional(),
+  allow_emoji: z.boolean().optional(),
+  forbidden_characters: z.array(z.string()).optional(),
+  forbidden_phrases: z.array(z.string()).optional(),
+});
+export type TextRules = z.infer<typeof TextRulesSchema>;
+
+export const TypographySchema = z.object({
+  families: FontFamiliesSchema,
+  weights: z.array(z.number().int().min(100).max(900)).default([400, 700]),
+  sizes_per_format: z.record(FormatKeySchema, SizeRoleSchema).optional(),
+  line_heights: PerRoleNumberSchema.optional(),
+  letter_spacing: PerRoleNumberSchema.optional(),
+  headline_rules: TextRulesSchema.default({}),
+  body_rules: TextRulesSchema.default({}),
+  cta_text_rules: TextRulesSchema.default({}),
+  disclaimer_text_rules: TextRulesSchema.default({}),
+});
+export type Typography = z.infer<typeof TypographySchema>;
+
+// ── CTA ──────────────────────────────────────────────────────────────────────
+// A single approved CTA "look". The brand kit declares one DEFAULT (the
+// `button_*` / `border_radius` fields) plus an optional list of additional
+// `variants` the renderer may pick from per-concept. All variants are on-
+// brand by definition; the planner's diversity controls choose between them
+// so a 3-concept campaign can ship 3 distinct CTA treatments without any of
+// them being "off brand". When `variants` is empty the renderer falls back
+// to the single default look (today's behaviour).
+export const CtaVariantSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  background_color: z.string(), // accepts "transparent" + #hex
+  text_color: HexColorSchema,
+  border_radius: z.number().nonnegative().default(0),
+  border_width: z.number().nonnegative().optional(),
+  border_color: HexColorSchema.optional(),
+  min_width: z.number().positive().optional(),
+  min_height: z.number().positive().optional(),
+});
+export type CtaVariant = z.infer<typeof CtaVariantSchema>;
+
+export const CtaSchema = z.object({
+  allowed_texts: z.array(z.string().min(1)).default([]),
+  button_background_color: HexColorSchema,
+  button_text_color: HexColorSchema,
+  border_radius: z.number().nonnegative().default(0),
+  padding: z.object({
+    top: z.number().nonnegative(),
+    right: z.number().nonnegative(),
+    bottom: z.number().nonnegative(),
+    left: z.number().nonnegative(),
+  }),
+  minimum_size: z.object({
+    width: z.number().positive(),
+    height: z.number().positive(),
+  }),
+  // Optional: extra approved CTA looks. Renderer picks one per concept.
+  variants: z.array(CtaVariantSchema).default([]),
+});
+export type Cta = z.infer<typeof CtaSchema>;
+
+// ── Layout ───────────────────────────────────────────────────────────────────
+export const SpacingSchema = z.object({
+  unit_px: z.number().positive().default(4),
+  scale: z.array(z.number().nonnegative()).default([0, 4, 8, 16, 24, 32, 48, 64]),
+});
+
+const Inset = z.object({
+  top: z.number().nonnegative(),
+  right: z.number().nonnegative(),
+  bottom: z.number().nonnegative(),
+  left: z.number().nonnegative(),
+});
+
+export const DisclaimerPlacementSchema = z.enum([
+  "bottom-left",
+  "bottom-center",
+  "bottom-right",
+  "top-left",
+  "top-center",
+  "top-right",
+  "custom",
+]);
+export type DisclaimerPlacement = z.infer<typeof DisclaimerPlacementSchema>;
+
+export const LayoutSchema = z.object({
+  spacing: SpacingSchema.optional(),
+  outer_margins: z.record(FormatKeySchema, Inset).optional(),
+  allowed_templates: z.array(z.string()).default([]), // Bannerbear template UIDs or names
+  // Composition vocabulary is brand-specific — accept any string the brand
+  // owner declares (e.g. "hero_left_mockup_right", "risk_warning_bottom_bar").
+  // The QA layer cross-references these against the manifest's role layout.
+  allowed_compositions: z.array(z.string().min(1)).default([]),
+  safe_areas: z.record(FormatKeySchema, Inset).optional(),
+  // Per-format inter-section gaps sourced from the MEXEM banner spec. When
+  // present, computeLayout uses these instead of the historic hardcoded
+  // gaps (logo→headline 48, sub→CTA 20). Partial record — formats without
+  // an entry retain the existing literal gaps. Only the most-common text-
+  // stack code paths honor these; rarer composition branches retain their
+  // own gap math.
+  section_gaps_per_format: z
+    .record(
+      FormatKeySchema,
+      z
+        .object({
+          logo_to_text: z.number().nonnegative().optional(),
+          text_to_cta: z.number().nonnegative().optional(),
+        })
+        .optional(),
+    )
+    .optional(),
+  // Per-format logo placement (top-anchor). When the MEXEM spec specifies
+  // symmetric logo side margins that center the logo (e.g. 1080x1920 with
+  // 144px on each side and a 787px-wide logo), set "top-center". Other
+  // formats keep the default "top-left" corner-anchor behaviour.
+  logo_position_per_format: z
+    .record(FormatKeySchema, z.enum(["top-left", "top-center", "top-right"]).optional())
+    .optional(),
+  // Per-format product-visual anchor. "right" (default) keeps the
+  // historic phone-on-right placement. "bottom-band" pins the visual
+  // as a full-canvas-width band hugging the risk-message band (1080x1920
+  // and 960x1200 per the MEXEM spec).
+  visual_anchor_per_format: z
+    .record(FormatKeySchema, z.enum(["right", "bottom-band"]).optional())
+    .optional(),
+  // Per-format explicit element box dimensions sourced from the MEXEM
+  // banner spec. When present, computeLayout uses these for the text
+  // column width, CTA box dimensions, and risk-message band width.
+  // product_visual is part of the spec but intentionally NOT modeled here
+  // yet — its size is composition-dependent and folds into PR 5.
+  element_sizes_per_format: z
+    .record(
+      FormatKeySchema,
+      z
+        .object({
+          text: z
+            .object({
+              width: z.number().positive().optional(),
+              height: z.number().positive().optional(),
+            })
+            .optional(),
+          cta: z
+            .object({
+              width: z.number().positive().optional(),
+              height: z.number().positive().optional(),
+            })
+            .optional(),
+          risk_message: z
+            .object({
+              width: z.number().positive().optional(),
+              height: z.number().positive().optional(),
+            })
+            .optional(),
+          product_visual: z
+            .object({
+              width: z.number().positive().optional(),
+              height: z.number().positive().optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+    )
+    .optional(),
+  // Per-format alternative compositions sourced from the MEXEM banner spec.
+  // 1200x1200 has two designed variants (Variant A "phone right" — the
+  // default — and Variant B "phone lower"). This block stores the
+  // measurements for the non-default variants so a future variant-selector
+  // PR can pick them at render time. **Currently DATA-ONLY** — computeLayout
+  // does not yet consume this block. Adding the data here so it's tracked
+  // and ready when the selector is wired.
+  composition_variants_per_format: z
+    .record(
+      FormatKeySchema,
+      z
+        .record(
+          z.string().min(1),
+          z
+            .object({
+              logo_position: z
+                .enum(["top-left", "top-center", "top-right"])
+                .optional(),
+              logo: z
+                .object({
+                  width: z.number().positive(),
+                  height: z.number().positive(),
+                })
+                .optional(),
+              text: z
+                .object({
+                  width: z.number().positive().optional(),
+                  height: z.number().positive().optional(),
+                })
+                .optional(),
+              cta: z
+                .object({
+                  width: z.number().positive().optional(),
+                  height: z.number().positive().optional(),
+                })
+                .optional(),
+              risk_message: z
+                .object({
+                  width: z.number().positive().optional(),
+                  height: z.number().positive().optional(),
+                })
+                .optional(),
+              product_visual: z
+                .object({
+                  width: z.number().positive().optional(),
+                  height: z.number().positive().optional(),
+                })
+                .optional(),
+              section_gaps: z
+                .object({
+                  logo_to_text: z.number().nonnegative().optional(),
+                  text_to_cta: z.number().nonnegative().optional(),
+                })
+                .optional(),
+            })
+            .optional(),
+        )
+        .optional(),
+    )
+    .optional(),
+  disclaimer_placement_rules: z
+    .object({
+      allowed_positions: z.array(DisclaimerPlacementSchema).default(["bottom-center"]),
+      min_distance_from_edge_px: z.number().nonnegative().optional(),
+    })
+    .default({ allowed_positions: ["bottom-center"] }),
+});
+export type Layout = z.infer<typeof LayoutSchema>;
+
+// ── Visual language ──────────────────────────────────────────────────────────
+export const VisualStyleSchema = z.enum([
+  "photographic",
+  "illustrated",
+  "3d-render",
+  "abstract",
+  "geometric",
+  "editorial",
+  "minimalist",
+  "collage",
+  "duotone",
+  "isometric",
+]);
+export type VisualStyle = z.infer<typeof VisualStyleSchema>;
+
+const UsageRulesSchema = z.object({
+  allowed: z.boolean().default(true),
+  notes: z.string().optional(),
+  forbidden: z.array(z.string()).default([]),
+});
+
+export const VisualLanguageSchema = z.object({
+  tone: z.array(z.string()).default([]),
+  allowed_styles: z.array(VisualStyleSchema).default([]),
+  forbidden_styles: z.array(VisualStyleSchema).default([]),
+  background_rules: z
+    .object({
+      allow_solid_color: z.boolean().default(true),
+      allow_gradient: z.boolean().default(true),
+      allow_image: z.boolean().default(true),
+      allow_pattern: z.boolean().default(false),
+      forbidden: z.array(z.string()).default([]),
+    })
+    .optional(),
+  decorative_element_rules: UsageRulesSchema.optional(),
+  mockup_rules: UsageRulesSchema.optional(),
+  screenshot_rules: UsageRulesSchema.optional(),
+});
+export type VisualLanguage = z.infer<typeof VisualLanguageSchema>;
+
+// ── Legal ────────────────────────────────────────────────────────────────────
+// Per-language disclaimer overrides. Keyed by ISO 639-1 language code (the
+// same set as the campaign brief's `language` field). Optional — when the
+// brief asks for a language with no override, the planner falls back to
+// `default_disclaimer` (English) and lets the AI translate as a last resort.
+export const LegalDisclaimersByLanguageSchema = z.object({
+  en: z.string().optional(),
+  fr: z.string().optional(),
+  it: z.string().optional(),
+  nl: z.string().optional(),
+  ar: z.string().optional(),
+  he: z.string().optional(),
+});
+export type LegalDisclaimersByLanguage = z.infer<typeof LegalDisclaimersByLanguageSchema>;
+
+// Topic-keyed appendix disclaimers. Each one is appended to the campaign's
+// general disclaimer when the brief / concept copy mentions the topic. See
+// `detectDisclaimerTopics` in src/lib/ai/disclaimerTopics.ts for the keyword
+// rules driving the match.
+//
+// English source today. For non-English campaigns the topic appendix is
+// appended verbatim in English (the general disclaimer is still translated
+// per locale by marketing-translator). Per-language topic overrides are a
+// follow-up — until they land, operators who need localised topic text
+// should add full language entries to `disclaimers_by_language` and skip
+// the topic system for that campaign.
+export const TopicDisclaimersSchema = z.object({
+  // Free / commission-free ETF trading offers. Appended when copy mentions
+  // ETFs or exchange-traded funds.
+  etf_free: z.string().optional(),
+  // Complex / leveraged products (options, futures, warrants, derivatives).
+  // Appended when copy mentions any of those instruments.
+  complex_products: z.string().optional(),
+  // Tax advice / tax-related claims. Appended when copy mentions tax or
+  // taxation.
+  tax_advice: z.string().optional(),
+});
+export type TopicDisclaimers = z.infer<typeof TopicDisclaimersSchema>;
+
+export const LegalSchema = z.object({
+  risk_warning_required: z.boolean().default(false),
+  default_disclaimer: z.string().default(""),
+  // Optional, regulator-vetted disclaimer per language. When present, the
+  // planner uses the matching entry verbatim (regulators care about exact
+  // wording — AI translation is risky for compliance).
+  disclaimers_by_language: LegalDisclaimersByLanguageSchema.optional(),
+  // Topic-specific appendix strings — see TopicDisclaimersSchema above.
+  topic_disclaimers: TopicDisclaimersSchema.optional(),
+  min_disclaimer_font_size: z.number().positive().optional(),
+  disclaimer_must_appear_in_all_formats: z.boolean().default(true),
+  legal_claim_rules: z.array(z.string()).default([]),
+});
+export type Legal = z.infer<typeof LegalSchema>;
+
+// ── Approved asset types ─────────────────────────────────────────────────────
+// Per asset type: is it allowed, and what extra rules apply?
+export const AssetTypeKeySchema = z.enum([
+  "logo",
+  "favicon",
+  "screenshot",
+  "mockup",
+  "background",
+  "midjourney_background",
+  "decorative",
+  "generated_visual",
+]);
+export type AssetTypeKey = z.infer<typeof AssetTypeKeySchema>;
+
+export const AssetTypeRuleSchema = z.object({
+  allowed: z.boolean().default(true),
+  notes: z.string().optional(),
+  requires_legal_review: z.boolean().default(false),
+  forbidden: z.array(z.string()).default([]),
+});
+export type AssetTypeRule = z.infer<typeof AssetTypeRuleSchema>;
+
+// ── Provenance ───────────────────────────────────────────────────────────────
+// One entry per defaulted-or-sourced field on the kit. `path` uses dotted
+// JSON-pointer-ish notation (e.g. "cta.border_radius") so a reviewer can
+// jump straight to the value in the generated kit.
+export const ProvenanceSourceSchema = z.enum([
+  "brand_spec", // Value came from brand-input/brand-spec/brand-spec.json.
+  "mvp_default", // Converter picked a generic fallback. needs_review = true.
+  "env", // Value came from process.env (e.g. BANNERBEAR_TEMPLATE_*).
+  "template_map", // Value came from data/bannerbear-template-map.example.json.
+  "inherited", // Value was derived from another spec field (e.g. IBKR-AI inherited from logo-AI).
+  "brand_input_inventory", // Value came from a file in brand-input/ folders.
+]);
+export type ProvenanceSource = z.infer<typeof ProvenanceSourceSchema>;
+
+export const ProvenanceEntrySchema = z.object({
+  path: z.string().min(1),
+  source: ProvenanceSourceSchema,
+  needs_review: z.boolean(),
+  fallback_reason: z.string().optional(),
+});
+export type ProvenanceEntry = z.infer<typeof ProvenanceEntrySchema>;
+
+// ── Brand Kit Lite (root) ────────────────────────────────────────────────────
+export const BrandKitLiteSchema = z.object({
+  brand_id: z.string().min(1),
+  brand_name: z.string().min(1),
+  brand_description: z.string().default(""),
+
+  logo: LogoSchema,
+  colors: ColorsSchema,
+  typography: TypographySchema,
+  cta: CtaSchema,
+  layout: LayoutSchema,
+  visual_language: VisualLanguageSchema,
+  legal: LegalSchema,
+
+  approved_asset_types: z
+    .record(AssetTypeKeySchema, AssetTypeRuleSchema)
+    .optional(),
+
+  // System-level brand policies that don't fit any of the typed sections —
+  // e.g. "do not generate logo with AI", "Element Manifest is source of truth".
+  // Free-form on purpose: brand owners add lines as policies evolve. QA can
+  // surface them in reports without trying to parse them.
+  policies: z.array(z.string()).optional(),
+
+  // Where each generated value came from. The intake converter walks the
+  // BrandInputSpec, picks values, and records one entry per field that was
+  // either drawn from the spec or filled with an MVP default. `needs_review`
+  // is true whenever the value did NOT come from the brand owner — those
+  // entries are the surface a reviewer must approve before a campaign ships.
+  provenance: z.array(ProvenanceEntrySchema).optional(),
+
+  schema_version: z.string().default("1.0.0"),
+});
+export type BrandKitLite = z.infer<typeof BrandKitLiteSchema>;

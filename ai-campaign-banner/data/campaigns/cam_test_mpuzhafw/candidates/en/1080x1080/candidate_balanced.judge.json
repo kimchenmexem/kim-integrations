@@ -1,0 +1,48 @@
+{
+  "overallScore": 0.28,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.35,
+  "readability": 0.2,
+  "ctaPlacement": 0.2,
+  "brandConsistency": 0.9,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline is severely clipped at the right canvas edge: 'BUY ETFs COM' is visible but the remainder (likely 'COMMISSION FREE' or similar) runs off the canvas. The core value proposition is unreadable.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "CTA label is clipped — only 'START' and a faint 'INV' ghost are visible; the full call-to-action (e.g. 'START INVESTING') runs off the right edge of the canvas.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA pill extends past the right canvas edge with zero padding, and the label inside the pill is truncated. Pill shape itself is cut off.",
+      "location": "CTABlock bottom-right"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because both the headline and CTA label are truncated, the intended reading hierarchy collapses — viewer cannot resolve the primary message or the action.",
+      "location": "HeadlineBlock + CTABlock"
+    },
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant is essentially identical to the source, including the same clipping problems — suggests no reflow was performed for the 1080x1080 target."
+    }
+  ],
+  "notes": "Variant reproduces the source faithfully but inherits its clipping defects without any layout adaptation. Not shippable until headline and CTA are reflowed to fit within the 1080×1080 canvas with adequate edge padding.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 6,
+    "output_tokens": 597,
+    "cache_creation_input_tokens": 3172,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:06:39.018Z"
+}

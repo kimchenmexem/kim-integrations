@@ -1,0 +1,43 @@
+{
+  "overallScore": 0.35,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.5,
+  "readability": 0.25,
+  "ctaPlacement": 0.3,
+  "brandConsistency": 0.9,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline 'BUY ETFs COMMISSION FREE' is clipped on the right edge of the canvas — only 'BUY ETFs COMMISSION FRE' is visible, with the final 'E' cut off.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA pill extends past the right canvas edge; the label 'START INVESTING' is clipped to 'START INVE' with 'STING' overflowing or rendered outside the pill background.",
+      "location": "CTABlock bottom-right"
+    },
+    {
+      "severity": "warning",
+      "category": "ctaPlacement",
+      "message": "CTA pill has effectively zero right-side padding from the canvas edge, well under the 16px minimum.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because the CTA label is clipped and the headline is truncated, the intended reading order (headline → CTA) is degraded; the eye is drawn to broken text rather than the value proposition.",
+      "location": "HeadlineBlock, CTABlock"
+    }
+  ],
+  "notes": "Variant appears nearly identical to the source, but the source itself exhibits the same clipping problems on headline and CTA at 1200x628. Brand palette, logo, and disclaimer are preserved correctly.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 6,
+    "output_tokens": 521,
+    "cache_creation_input_tokens": 2104,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:06:07.256Z"
+}

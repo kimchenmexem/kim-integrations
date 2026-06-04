@@ -1,0 +1,49 @@
+{
+  "overallScore": 0.35,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.4,
+  "readability": 0.3,
+  "ctaPlacement": 0.25,
+  "brandConsistency": 0.85,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "The MEXEM logo at the top is clipped by the canvas — only the lower half of the wordmark is visible.",
+      "location": "LogoBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA label 'START INVESTI' is truncated at the right edge of the canvas; the pill itself also extends past the right edge with no visible terminating curve.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline 'BUY ETFs COMMISSION FREE!' is clipped at the top of the canvas — the upper portion of the capital letters is cut off.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "With both the logo and headline clipped at the top and the CTA clipped at the right, no element reads cleanly, collapsing the intended hierarchy.",
+      "location": "overall"
+    },
+    {
+      "severity": "warning",
+      "category": "ctaPlacement",
+      "message": "CTA pill has zero right-edge padding; needs ≥ 16px breathing room from the canvas edge.",
+      "location": "CTABlock"
+    }
+  ],
+  "notes": "Variant appears to be a near-identical reproduction of the source, which itself exhibits the same clipping problems on logo, headline, and CTA. Since the source is the approved reference, similarity and brand consistency score high, but the inherited clipping issues make the variant un-shippable on readability and CTA placement.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 6,
+    "output_tokens": 562,
+    "cache_creation_input_tokens": 330,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:07:44.028Z"
+}

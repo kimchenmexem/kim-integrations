@@ -1,0 +1,528 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  REVIEWER
+  MANAGER
+  ADMIN
+}
+
+model User {
+  id         Int            @id @default(autoincrement())
+  email      String         @unique
+  fullName   String?
+  role       Role           @default(USER)
+  isActive   Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  identities UserIdentity[]
+
+  // Ownership back-relations. Required by Prisma to declare the FK only
+  // once on the child side — no DB impact.
+  translationJobs   TranslationJob[]
+  translationReviews TranslationReview[]
+  demoRuns          DemoRun[]
+  glossaryTerms     GlossaryTerm[]
+  memoryEntries     TranslationMemoryEntry[]
+  auditLogs         AuditLog[]
+  outputVersions    TranslationOutputVersion[]
+  forbiddenPhrases  ForbiddenPhrase[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+// ─── Audit log ────────────────────────────────────────────────────────
+// Append-only record of security- and compliance-sensitive mutations.
+// Never mutated after insert. Indexes chosen for the three expected read
+// patterns: "what did user X do", "who touched entity Y", "what happened
+// recently".
+model AuditLog {
+  id           Int      @id @default(autoincrement())
+  // Actor's local User id. Nullable ONLY for system-originated events
+  // (currently unused but reserved) or when an authenticated Clerk session
+  // pre-dates bootstrap. Every row written from a handler should have it set.
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action       String   // dotted verb, e.g. "glossary.create", "bundle.publish"
+  entityType   String   // Prisma model name, e.g. "GlossaryTerm"
+  entityId     String?  // stringified PK (supports compound keys if needed later)
+  beforeJson   Json?    // snapshot before the mutation (update/delete only)
+  afterJson    Json?    // snapshot after the mutation (create/update only)
+  metadataJson Json?    // freeform structured metadata per action
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+model UserIdentity {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider       String   // "clerk" | "google" | ... — external IdP identifier
+  providerUserId String   // the IdP's stable user ID (e.g. Clerk user_2abc...)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model Locale {
+  code     String @id
+  label    String
+  language String
+  country  String
+}
+
+model GlossaryTerm {
+  id                Int     @id @default(autoincrement())
+  sourceTerm        String
+  targetTerm        String
+  localeCode        String?
+  required          Boolean @default(false)
+  forbidden         Boolean @default(false)
+  notes             String?
+  createdByUserId   Int?
+  createdBy         User?   @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdByUserId])
+}
+
+model TranslationJob {
+  id               Int       @id @default(autoincrement())
+  sourceText       String
+  sourceLanguage   String
+  targetLocale     String
+  textType         String
+  persona          String
+  tone             String
+  lengthConstraint String?
+  requiredTerms    String?
+  forbiddenTerms   String?
+  complianceNotes  String?
+  campaignContext  String?
+  outputCount      Int       @default(1)
+  status           String    @default("pending")
+  createdByUserId  Int?
+  createdBy        User?     @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  outputs          TranslationOutput[]
+
+  @@index([createdByUserId])
+}
+
+model TranslationOutput {
+  id             Int      @id @default(autoincrement())
+  job            TranslationJob @relation(fields: [jobId], references: [id])
+  jobId          Int
+  outputText     String
+  version        Int
+  score          Float?
+  validation     String?
+  approved       Boolean  @default(false)
+  reviewNote     String?
+  reviews        TranslationReview[]
+  qualityReviews TranslationQualityReview[]
+  versions       TranslationOutputVersion[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TranslationReview {
+  id                    Int      @id @default(autoincrement())
+  output                TranslationOutput @relation(fields: [outputId], references: [id])
+  outputId              Int
+  decision              String   // "approved" | "rejected"
+  note                  String?
+  issueCodes            String?  // JSON array: ["tone","terminology","grammar","fluency","literal_translation","brand_voice","register"]
+  correctedTranslation  String?
+  // Legacy free-form field retained for backward compat. New code writes reviewerUserId.
+  reviewerId            String?
+  reviewerUserId        Int?
+  reviewer              User?    @relation(fields: [reviewerUserId], references: [id], onDelete: SetNull)
+  triggeredVersions     TranslationOutputVersion[]
+  triggeredForbiddenPhrases ForbiddenPhrase[]
+  createdAt             DateTime @default(now())
+
+  @@index([reviewerUserId])
+}
+
+/// Compliance-driven banned phrases that the translation pipeline must
+/// never emit. Populated by:
+///   1. Admin/manager directly via the Compliance Admin → Forbidden Phrases UI.
+///   2. Reviewers via POST /api/review/:outputId when rejecting a translation
+///      with a `forbiddenPhrases: string[]` array — those rows get
+///      `triggeringReviewId` set so we can show provenance ("added because
+///      review #42 rejected output #123 with this phrase").
+///
+/// Soft-deactivated rather than hard-deleted: the row stays so audit history
+/// keeps making sense, but `active=false` means the prompt builders skip it.
+model ForbiddenPhrase {
+  id                Int      @id @default(autoincrement())
+  /// The literal phrase that must never appear in translated text.
+  /// Matched case-insensitively at runtime in the prompt builder; we store
+  /// it as the operator typed it for human readability.
+  phrase            String
+  /// Target locale this applies to. Empty string = "all locales".
+  /// Stored as TEXT (not the Locale enum) so we can use "" as a wildcard
+  /// without polluting the Locale model.
+  localeCode        String
+  reason            String?
+  active            Boolean  @default(true)
+  addedByUserId     Int?
+  addedBy           User?    @relation(fields: [addedByUserId], references: [id], onDelete: SetNull)
+  triggeringReviewId Int?
+  triggeringReview  TranslationReview? @relation(fields: [triggeringReviewId], references: [id], onDelete: SetNull)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([localeCode, phrase])
+  @@index([localeCode, active])
+  @@index([addedByUserId])
+}
+
+/// Durable per-state snapshot of a TranslationOutput over its lifetime.
+///
+/// Anchor entity: TranslationOutput — the only persisted entity currently
+/// mutated after creation (`approved` and `reviewNote` change on review).
+/// v1 is written the moment the output is created; a new row is appended
+/// every time review-driven state changes. Older rows are never updated —
+/// this is an append-only log.
+model TranslationOutputVersion {
+  id                    Int      @id @default(autoincrement())
+  translationOutputId   Int
+  output                TranslationOutput  @relation(fields: [translationOutputId], references: [id], onDelete: Cascade)
+  versionNumber         Int
+  eventType             String   // "initial_generation" | "review_update" | "admin_override" | "system_regeneration"
+
+  // Effective state at this point in time. outputText is always the current
+  // TranslationOutput.outputText (unchanged by reviews today, but future
+  // admin-override paths may rewrite it). correctedTranslation holds a
+  // reviewer-proposed replacement when the triggering review carried one.
+  outputText            String
+  correctedTranslation  String?
+  approved              Boolean
+  reviewNote            String?
+  score                 Float?
+  issueCodesJson        String?  // JSON array, from triggering review if any
+
+  triggeringReviewId    Int?
+  triggeringReview      TranslationReview? @relation(fields: [triggeringReviewId], references: [id], onDelete: SetNull)
+  createdByUserId       Int?
+  createdBy             User?    @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdAt             DateTime @default(now())
+
+  @@unique([translationOutputId, versionNumber])
+  @@index([translationOutputId, createdAt])
+  @@index([createdByUserId])
+  @@index([eventType])
+}
+
+model TranslationQualityReview {
+  id                    Int      @id @default(autoincrement())
+  output                TranslationOutput @relation(fields: [translationOutputId], references: [id])
+  translationOutputId   Int
+  score                 Float
+  approved              Boolean
+  reviewerModel         String
+  issuesJson            String   // JSON array of {code, severity, message}
+  repairInstructions    String?  // JSON array of strings
+  hardCheckIssuesJson   String?  // JSON array of deterministic check failures
+  reviewStage           String   // "initial" | "repair" | "regeneration"
+  inputText             String   // the text that was reviewed (may differ from outputText after repair)
+  createdAt             DateTime @default(now())
+}
+
+model TranslationMemoryEntry {
+  id              Int      @id @default(autoincrement())
+  sourceText      String
+  targetText      String
+  sourceLanguage  String
+  targetLocale    String
+  textType        String
+  // Audit only — memory entries are a shared corpus, reads are not scoped by owner.
+  createdByUserId Int?
+  createdBy       User?    @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+
+  @@index([createdByUserId])
+}
+
+model DemoRun {
+  id               Int      @id @default(autoincrement())
+  inputText        String
+  locale           String
+  status           String
+  riskLevel        String
+  finalAction      String
+  finalConfidence  Float
+  semanticResult   String   // JSON
+  independentResult String  // JSON
+  originalText     String
+  finalText        String
+  issues           String   // JSON array
+  rewriteApplied   Boolean
+  createdByUserId  Int?
+  createdBy        User?    @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdAt        DateTime @default(now())
+
+  @@index([createdByUserId])
+}
+
+// ─── Compliance Source-of-Truth (Stage 1 — data model only) ──────────
+// Conventions:
+// - Enum-like string fields are validated at the app layer with Zod.
+// - *Json suffix = JSON-encoded TEXT (Postgres TEXT column; use jsonb if migrating later).
+// - Runtime translation path never reads SourceDocumentVersion rawContent
+//   directly — it only reads RuleBundle.contentJson. Ingestion is offline.
+
+model RegulatorySource {
+  id           Int       @id @default(autoincrement())
+  code         String    @unique    // stable identifier: EUR_LEX, ESMA, FCA, AMF, ...
+  name         String
+  regulator    String                // display name of the regulator
+  jurisdiction String                // EU | IT | FR | NL | BE | ES | GB | CY
+  localeScope  String                // JSON string[] of LocaleCode — locales this source's publications target
+  sourceType   String                // REGULATION | DIRECTIVE | GUIDANCE | CIRCULAR | POSITION | HANDBOOK
+  canonicality String                // PRIMARY | SECONDARY | ADVISORY
+  parserKey    String                // forward-looking parser identifier (no parser required in V1)
+  pollCadence  String                // on_demand | daily | weekly | monthly
+  active       Boolean   @default(true)
+  baseUrl      String?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  documents    SourceDocument[]
+  syncRuns     SourceSyncRun[]
+
+  @@index([jurisdiction])
+  @@index([active])
+}
+
+model SourceDocument {
+  id          Int       @id @default(autoincrement())
+  sourceId    Int
+  source      RegulatorySource @relation(fields: [sourceId], references: [id])
+  externalRef String    // e.g. "COBS 4.2", "Circular 1/2019", "MiFID II Art. 24"
+  title       String
+  url         String?
+  language    String?   // ISO language code of the document itself (not locale)
+  active      Boolean   @default(true)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  versions    SourceDocumentVersion[]
+
+  @@unique([sourceId, externalRef])
+  @@index([active])
+}
+
+model SourceDocumentVersion {
+  id            Int       @id @default(autoincrement())
+  documentId    Int
+  document      SourceDocument @relation(fields: [documentId], references: [id])
+  versionLabel  String    // human label: "2024-03-01", "v1.2", commit hash, etc.
+  contentHash   String    // sha256 of parsedText — dedup key
+  rawContent    String    // raw HTML/PDF text (audit only — NEVER read at runtime)
+  parsedText    String    // normalized text (audit only — NEVER read at runtime)
+  fetchedAt     DateTime  @default(now())
+  fetchedBy     String    // "manual:<user>" | "sync:<runId>"
+  effectiveFrom DateTime?
+  effectiveUntil DateTime?
+
+  @@unique([documentId, contentHash])
+  @@index([documentId, fetchedAt])
+}
+
+model ComplianceObligation {
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String
+  jurisdiction   String                 // EU | IT | FR | NL | BE | ES | GB | CY
+  localeCode     String?                // null = applies to all locales in jurisdiction
+  category       String                 // guarantees | urgency | authority | promotional | disclaimer | prominence | past_performance | suitability | risk_balance
+  severity       String                 // critical | major | minor
+  status         String    @default("pending") // pending | reviewed | approved | rejected | superseded
+  sourceRefsJson String                 // JSON: [{sourceCode, documentRef, versionId, quote}]
+  approvedBy     String?
+  approvedAt     DateTime?
+  createdBy      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  rules          ComplianceRule[]
+
+  @@index([jurisdiction, status])
+  @@index([localeCode])
+}
+
+model ComplianceRule {
+  id            Int       @id @default(autoincrement())
+  obligationId  Int
+  obligation    ComplianceObligation @relation(fields: [obligationId], references: [id])
+  ruleType      String                 // banned_phrase | regex | required_disclaimer | prominence | semantic_check | conditional_disclosure
+  configJson    String                 // machine-executable config per ruleType
+  localeCode    String?                // optional override from obligation
+  severity      String?                // optional override from obligation
+  enabled       Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([obligationId])
+  @@index([enabled])
+}
+
+model RuleBundle {
+  id             Int       @id @default(autoincrement())
+  localeCode     String                 // target locale this bundle applies to
+  jurisdiction   String
+  version        String                 // semver: 1.0.0
+  status         String    @default("draft") // draft | published | superseded
+  contentJson    String                 // full compiled bundle (rules + promptContext + disclaimers)
+  contentHash    String
+  sourceRefsJson String                 // denormalized list of sources covered by this bundle
+  publishedAt    DateTime?
+  publishedBy    String?
+  supersededAt   DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([localeCode, version])
+  @@index([localeCode, status])
+}
+
+model SourceSyncRun {
+  id                Int       @id @default(autoincrement())
+  sourceId          Int?
+  source            RegulatorySource? @relation(fields: [sourceId], references: [id])
+  startedAt         DateTime  @default(now())
+  finishedAt        DateTime?
+  status            String    @default("running") // running | success | failed | partial
+  triggeredBy       String                        // manual:<user> | scheduled
+  documentsFetched  Int       @default(0)
+  versionsCreated   Int       @default(0)
+  diffsDetected     Int       @default(0)
+  errorMessage      String?
+  runLogJson        String?   // optional run log/metrics
+
+  @@index([sourceId, startedAt])
+  @@index([status])
+}
+
+model LegalReviewTask {
+  id         Int       @id @default(autoincrement())
+  kind       String                // source_diff | obligation_draft | bundle_publish | rule_change
+  refType    String                // e.g. "SourceDocumentVersion", "ComplianceObligation", "RuleBundle"
+  refId      Int
+  title      String                // convenience for queues
+  status     String    @default("open") // open | in_progress | decided
+  assignee   String?
+  decision   String?               // approved | rejected | needs_changes
+  note       String?
+  createdAt  DateTime  @default(now())
+  decidedAt  DateTime?
+  decidedBy  String?
+
+  @@index([status, kind])
+  @@index([assignee, status])
+}
+
+// ─── Publisher / Market Intelligence Layer ────────────────────────────
+// Completely separate from the compliance source-of-truth.
+// NOT used for regulatory compliance, rule bundles, or legal obligations.
+// Purpose: market messaging research, publisher registry, audience mapping,
+//          editorial monitoring, media planning intelligence.
+// Scope: NON-CRYPTO. Adapters must filter out crypto/virtual-asset content.
+
+model PublisherSource {
+  id                Int       @id @default(autoincrement())
+  code              String    @unique    // stable identifier: SOLE24ORE, BOLSAMANIA, FD_NL, etc.
+  name              String
+  country           String               // IT | ES | NL | FR | BE | GB | EU
+  localeScope       String               // JSON string[] of LocaleCode
+  language          String               // it | es | nl | fr | en
+  sourceClass       String               // publisher | exchange | community | business_media | official_market
+  audienceType      String               // retail | active_trader | professional | mass_market
+  ingestionMode     String               // curated | rss | html_list | manual
+  canonicalUrl      String
+  coverageFocus     String               // JSON string[] — equities | ETFs | bonds | funds | macro | listed_companies | broker_reviews | education | community
+  relationshipType  String               // owned | partner | target_publisher | reference_source
+  active            Boolean   @default(true)
+  notes             String?
+
+  // Scoring & ranking (0–100 scale, pragmatic V1 assessments)
+  authorityScore       Int      @default(50)  // editorial credibility / regulatory standing
+  audienceIntentScore  Int      @default(50)  // how well the audience matches MEXEM's target users
+  brandSafetyScore     Int      @default(70)  // risk of association with controversial/unreliable content
+  partnerPriority      Int      @default(50)  // strategic priority for partnership/placement
+  marketRelevanceScore Int      @default(50)  // relevance to MEXEM's product/market focus
+
+  // Funnel classification — JSON string[] of roles this source serves
+  // Possible values: awareness | research | high_intent | community | official_market
+  funnelRolesJson      String   @default("[]")
+
+  // Topic/section filtering — enforce crypto/VA exclusion
+  includeTagsJson   String?              // JSON string[] — only ingest items matching these tags/sections
+  includePathsJson  String?              // JSON string[] — only ingest from these URL path prefixes
+  excludeTagsJson   String?              // JSON string[] — skip items matching these (crypto, NFT, DeFi, etc.)
+  excludePathsJson  String?              // JSON string[] — skip these URL paths (/crypto, /digital-assets, etc.)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  documents         PublisherDocument[]
+  syncRuns          PublisherSyncRun[]
+
+  @@index([country])
+  @@index([sourceClass])
+  @@index([audienceType])
+  @@index([active])
+}
+
+model PublisherDocument {
+  id            Int       @id @default(autoincrement())
+  sourceId      Int
+  source        PublisherSource @relation(fields: [sourceId], references: [id])
+  externalRef   String    // URL slug, article ID, or other stable ref
+  title         String
+  url           String?
+  publishedAt   DateTime?
+  language      String?
+  section       String?   // section/category within the publisher
+  tagsJson      String?   // JSON string[] — article tags
+  summary       String?   // short summary or lede
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([sourceId, externalRef])
+  @@index([sourceId, publishedAt])
+}
+
+model PublisherSyncRun {
+  id                Int       @id @default(autoincrement())
+  sourceId          Int?
+  source            PublisherSource? @relation(fields: [sourceId], references: [id])
+  startedAt         DateTime  @default(now())
+  finishedAt        DateTime?
+  status            String    @default("running") // running | success | failed | partial
+  triggeredBy       String
+  itemsFetched      Int       @default(0)
+  itemsCreated      Int       @default(0)
+  itemsFiltered     Int       @default(0) // items excluded by topic/section filters
+  errorMessage      String?
+
+  @@index([sourceId, startedAt])
+}

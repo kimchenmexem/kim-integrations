@@ -1,0 +1,36 @@
+{
+  "overallScore": 0.78,
+  "sourceSimilarity": 0.7,
+  "hierarchy": 0.85,
+  "readability": 0.9,
+  "ctaPlacement": 0.85,
+  "brandConsistency": 0.95,
+  "issues": [
+    {
+      "severity": "warning",
+      "category": "sourceSimilarity",
+      "message": "The SubheadlineBlock from the source ('150+ markets. 33 countries. 27 currencies. One unified account.') is missing in the variant, removing supporting context between the headline and CTA.",
+      "location": "SubheadlineBlock"
+    },
+    {
+      "severity": "warning",
+      "category": "sourceSimilarity",
+      "message": "The DisclaimerBlock present in the source ('Caution. Currency conversion fees apply...') is absent in the variant, which may be a compliance concern for financial advertising.",
+      "location": "DisclaimerBlock"
+    },
+    {
+      "severity": "info",
+      "category": "hierarchy",
+      "message": "With the subheadline and disclaimer removed, there is a large empty vertical gap between the headline and the CTA, weakening composition density compared to the source.",
+      "location": "middle region"
+    }
+  ],
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 354,
+    "cache_creation_input_tokens": 244,
+    "cache_read_input_tokens": 2642
+  },
+  "generatedAt": "2026-06-01T09:25:20.409Z"
+}

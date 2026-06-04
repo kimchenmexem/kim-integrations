@@ -1,0 +1,1408 @@
+{
+  "campaignId": "cam_validation_mpuztwvv",
+  "generatedAt": "2026-06-01T09:25:20.434Z",
+  "runs": [
+    {
+      "bannerId": "buy-etfs-commission-free",
+      "bannerName": "Buy ETFs Commission Free",
+      "format": "1200x628",
+      "championId": "candidate_balanced",
+      "championStrategyId": "balanced",
+      "reason": "Balanced wins with weightedScore=0.975 (judge overall 98%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9752499999999998,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.9752499999999998,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.952,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.95,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.94,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.9512499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.95,
+            "sourceSimilarity": 0.96,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.94,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "buy-etfs-commission-free",
+      "bannerName": "Buy ETFs Commission Free",
+      "format": "1080x1080",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.975 (judge overall 98%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9752499999999998,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.9672499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.97,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.951,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.95,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.94,
+            "brandConsistency": 0.96,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.94525,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.94,
+            "sourceSimilarity": 0.96,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.93,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "buy-etfs-commission-free",
+      "bannerName": "Buy ETFs Commission Free",
+      "format": "300x250",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.784 (judge overall 86%); 2 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.7835000000000001,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.86,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.88,
+            "readability": 0.7,
+            "ctaPlacement": 0.9,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 2
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.6354999999999998,
+          "eligible": false,
+          "rejectionReasons": [
+            "1 hard judge error"
+          ],
+          "judge": {
+            "overallScore": 0.82,
+            "sourceSimilarity": 0.88,
+            "hierarchy": 0.9,
+            "readability": 0.6,
+            "ctaPlacement": 0.92,
+            "brandConsistency": 0.95,
+            "errorCount": 1,
+            "warningCount": 1
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.3195,
+          "eligible": false,
+          "rejectionReasons": [
+            "2 hard judge errors",
+            "Readability 40% < 55% required"
+          ],
+          "judge": {
+            "overallScore": 0.62,
+            "sourceSimilarity": 0.78,
+            "hierarchy": 0.7,
+            "readability": 0.4,
+            "ctaPlacement": 0.85,
+            "brandConsistency": 0.82,
+            "errorCount": 2,
+            "warningCount": 1
+          }
+        },
+        {
+          "candidateId": "candidate_micro-simplified",
+          "strategyId": "micro-simplified",
+          "strategyName": "Micro-simplified",
+          "weightedScore": 0.7440000000000001,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.78,
+            "sourceSimilarity": 0.7,
+            "hierarchy": 0.88,
+            "readability": 0.85,
+            "ctaPlacement": 0.9,
+            "brandConsistency": 0.92,
+            "errorCount": 0,
+            "warningCount": 2
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.judge.json"
+        },
+        "candidate_micro-simplified": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "options-trading",
+      "bannerName": "Options Trading",
+      "format": "1200x628",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.985 (judge overall 99%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9849999999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.99,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.98,
+            "readability": 0.97,
+            "ctaPlacement": 0.97,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.978,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 0.99,
+            "hierarchy": 0.97,
+            "readability": 0.97,
+            "ctaPlacement": 0.97,
+            "brandConsistency": 0.99,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.9672499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.97,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.9597499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.96,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.96,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "options-trading",
+      "bannerName": "Options Trading",
+      "format": "1080x1080",
+      "championId": "candidate_balanced",
+      "championStrategyId": "balanced",
+      "reason": "Balanced wins with weightedScore=0.969 (judge overall 97%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9669999999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.97,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.96,
+            "readability": 0.95,
+            "ctaPlacement": 0.94,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.96875,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.97,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.96,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.949,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.95,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.95,
+            "readability": 0.94,
+            "ctaPlacement": 0.93,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.94375,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.94,
+            "sourceSimilarity": 0.96,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.92,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "options-trading",
+      "bannerName": "Options Trading",
+      "format": "300x250",
+      "championId": "candidate_micro-simplified",
+      "championStrategyId": "micro-simplified",
+      "reason": "Micro-simplified wins with weightedScore=0.752 (judge overall 78%); 3 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.1672499999999999,
+          "eligible": false,
+          "rejectionReasons": [
+            "2 hard judge errors",
+            "Readability 30% < 55% required"
+          ],
+          "judge": {
+            "overallScore": 0.42,
+            "sourceSimilarity": 0.96,
+            "hierarchy": 0.55,
+            "readability": 0.3,
+            "ctaPlacement": 0.7,
+            "brandConsistency": 0.95,
+            "errorCount": 2,
+            "warningCount": 2
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.5942499999999998,
+          "eligible": false,
+          "rejectionReasons": [
+            "1 hard judge error"
+          ],
+          "judge": {
+            "overallScore": 0.78,
+            "sourceSimilarity": 0.92,
+            "hierarchy": 0.85,
+            "readability": 0.55,
+            "ctaPlacement": 0.82,
+            "brandConsistency": 0.95,
+            "errorCount": 1,
+            "warningCount": 1
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.60325,
+          "eligible": false,
+          "rejectionReasons": [
+            "1 hard judge error"
+          ],
+          "judge": {
+            "overallScore": 0.78,
+            "sourceSimilarity": 0.92,
+            "hierarchy": 0.85,
+            "readability": 0.55,
+            "ctaPlacement": 0.88,
+            "brandConsistency": 0.95,
+            "errorCount": 1,
+            "warningCount": 1
+          }
+        },
+        {
+          "candidateId": "candidate_micro-simplified",
+          "strategyId": "micro-simplified",
+          "strategyName": "Micro-simplified",
+          "weightedScore": 0.7515000000000001,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.78,
+            "sourceSimilarity": 0.7,
+            "hierarchy": 0.9,
+            "readability": 0.85,
+            "ctaPlacement": 0.92,
+            "brandConsistency": 0.95,
+            "errorCount": 0,
+            "warningCount": 2
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.judge.json"
+        },
+        "candidate_micro-simplified": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "fractional-shares",
+      "bannerName": "Fractional Shares",
+      "format": "1200x628",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.974 (judge overall 98%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9737499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.95975,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.96,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.9597499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.96,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.96,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.9465,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.94,
+            "sourceSimilarity": 0.95,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.96,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "fractional-shares",
+      "bannerName": "Fractional Shares",
+      "format": "1080x1080",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.974 (judge overall 98%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9737499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.95975,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.96,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.97,
+            "readability": 0.95,
+            "ctaPlacement": 0.94,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.9422499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.94,
+            "sourceSimilarity": 0.96,
+            "hierarchy": 0.95,
+            "readability": 0.93,
+            "ctaPlacement": 0.93,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.92325,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.92,
+            "sourceSimilarity": 0.94,
+            "hierarchy": 0.93,
+            "readability": 0.92,
+            "ctaPlacement": 0.9,
+            "brandConsistency": 0.96,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "fractional-shares",
+      "bannerName": "Fractional Shares",
+      "format": "300x250",
+      "championId": "candidate_micro-simplified",
+      "championStrategyId": "micro-simplified",
+      "reason": "Micro-simplified wins with weightedScore=0.766 (judge overall 82%); 3 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0,
+          "eligible": false,
+          "rejectionReasons": [
+            "3 hard judge errors",
+            "CTA placement 50% < 60% required",
+            "Readability 30% < 55% required"
+          ],
+          "judge": {
+            "overallScore": 0.42,
+            "sourceSimilarity": 0.95,
+            "hierarchy": 0.55,
+            "readability": 0.3,
+            "ctaPlacement": 0.5,
+            "brandConsistency": 0.9,
+            "errorCount": 3,
+            "warningCount": 3
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.598,
+          "eligible": false,
+          "rejectionReasons": [
+            "1 hard judge error"
+          ],
+          "judge": {
+            "overallScore": 0.78,
+            "sourceSimilarity": 0.88,
+            "hierarchy": 0.82,
+            "readability": 0.6,
+            "ctaPlacement": 0.85,
+            "brandConsistency": 0.92,
+            "errorCount": 1,
+            "warningCount": 1
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.21499999999999997,
+          "eligible": false,
+          "rejectionReasons": [
+            "2 hard judge errors",
+            "Readability 40% < 55% required"
+          ],
+          "judge": {
+            "overallScore": 0.55,
+            "sourceSimilarity": 0.7,
+            "hierarchy": 0.6,
+            "readability": 0.4,
+            "ctaPlacement": 0.7,
+            "brandConsistency": 0.85,
+            "errorCount": 2,
+            "warningCount": 2
+          }
+        },
+        {
+          "candidateId": "candidate_micro-simplified",
+          "strategyId": "micro-simplified",
+          "strategyName": "Micro-simplified",
+          "weightedScore": 0.7665,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.82,
+            "sourceSimilarity": 0.7,
+            "hierarchy": 0.9,
+            "readability": 0.85,
+            "ctaPlacement": 0.9,
+            "brandConsistency": 0.95,
+            "errorCount": 0,
+            "warningCount": 2
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.judge.json"
+        },
+        "candidate_micro-simplified": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "trade-globally",
+      "bannerName": "Trade Globally, One Account",
+      "format": "1200x628",
+      "championId": "candidate_balanced",
+      "championStrategyId": "balanced",
+      "reason": "Balanced wins with weightedScore=0.975 (judge overall 98%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9737499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.975,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 0.99,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.96,
+            "brandConsistency": 0.99,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.95975,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.96,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.95,
+            "readability": 0.95,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.9512499999999999,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.95,
+            "sourceSimilarity": 0.96,
+            "hierarchy": 0.95,
+            "readability": 0.94,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 0.97,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1200x628/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "trade-globally",
+      "bannerName": "Trade Globally, One Account",
+      "format": "1080x1080",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.975 (judge overall 98%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.9752499999999998,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.98,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.97,
+            "readability": 0.96,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.959,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.96,
+            "sourceSimilarity": 0.98,
+            "hierarchy": 0.96,
+            "readability": 0.95,
+            "ctaPlacement": 0.94,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.9485,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.95,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.95,
+            "readability": 0.94,
+            "ctaPlacement": 0.92,
+            "brandConsistency": 0.98,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_visual-dominant",
+          "strategyId": "visual-dominant",
+          "strategyName": "Visual-dominant",
+          "weightedScore": 0.933,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.93,
+            "sourceSimilarity": 0.95,
+            "hierarchy": 0.95,
+            "readability": 0.94,
+            "ctaPlacement": 0.9,
+            "brandConsistency": 0.96,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_copy-dominant.judge.json"
+        },
+        "candidate_visual-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/1080x1080/candidate_visual-dominant.judge.json"
+        }
+      }
+    },
+    {
+      "bannerId": "trade-globally",
+      "bannerName": "Trade Globally, One Account",
+      "format": "300x250",
+      "championId": "candidate_source-preserving",
+      "championStrategyId": "source-preserving",
+      "reason": "Source-preserving wins with weightedScore=0.965 (judge overall 97%); 0 candidates rejected by eligibility gates.",
+      "candidates": [
+        {
+          "candidateId": "candidate_source-preserving",
+          "strategyId": "source-preserving",
+          "strategyName": "Source-preserving",
+          "weightedScore": 0.96475,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.97,
+            "sourceSimilarity": 1,
+            "hierarchy": 0.95,
+            "readability": 0.93,
+            "ctaPlacement": 0.95,
+            "brandConsistency": 1,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_balanced",
+          "strategyId": "balanced",
+          "strategyName": "Balanced",
+          "weightedScore": 0.9389999999999998,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.94,
+            "sourceSimilarity": 0.97,
+            "hierarchy": 0.93,
+            "readability": 0.92,
+            "ctaPlacement": 0.93,
+            "brandConsistency": 0.96,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_copy-dominant",
+          "strategyId": "copy-dominant",
+          "strategyName": "Copy-dominant",
+          "weightedScore": 0.92,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.92,
+            "sourceSimilarity": 0.95,
+            "hierarchy": 0.93,
+            "readability": 0.88,
+            "ctaPlacement": 0.92,
+            "brandConsistency": 0.95,
+            "errorCount": 0,
+            "warningCount": 0
+          }
+        },
+        {
+          "candidateId": "candidate_micro-simplified",
+          "strategyId": "micro-simplified",
+          "strategyName": "Micro-simplified",
+          "weightedScore": 0.74475,
+          "eligible": true,
+          "rejectionReasons": [],
+          "judge": {
+            "overallScore": 0.78,
+            "sourceSimilarity": 0.7,
+            "hierarchy": 0.85,
+            "readability": 0.9,
+            "ctaPlacement": 0.85,
+            "brandConsistency": 0.95,
+            "errorCount": 0,
+            "warningCount": 2
+          }
+        }
+      ],
+      "paths": {
+        "candidate_source-preserving": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_source-preserving.judge.json"
+        },
+        "candidate_balanced": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_balanced.judge.json"
+        },
+        "candidate_copy-dominant": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_copy-dominant.judge.json"
+        },
+        "candidate_micro-simplified": {
+          "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.svg",
+          "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.png",
+          "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.qa.json",
+          "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_validation_mpuztwvv/candidates/en/300x250/candidate_micro-simplified.judge.json"
+        }
+      }
+    }
+  ],
+  "analytics": {
+    "totalRuns": 12,
+    "championAwarded": 12,
+    "championDeclined": 0,
+    "strategyWins": {
+      "balanced": 3,
+      "source-preserving": 7,
+      "micro-simplified": 2
+    },
+    "strategyEligibleCount": {
+      "source-preserving": 10,
+      "balanced": 9,
+      "copy-dominant": 9,
+      "visual-dominant": 8,
+      "micro-simplified": 4
+    },
+    "strategyAvgWeightedScore": {
+      "source-preserving": {
+        "sum": 9.7145,
+        "count": 12,
+        "avg": 0.8095416666666666
+      },
+      "balanced": {
+        "sum": 10.5095,
+        "count": 12,
+        "avg": 0.8757916666666666
+      },
+      "copy-dominant": {
+        "sum": 9.687249999999999,
+        "count": 12,
+        "avg": 0.8072708333333333
+      },
+      "visual-dominant": {
+        "sum": 7.554,
+        "count": 8,
+        "avg": 0.94425
+      },
+      "micro-simplified": {
+        "sum": 3.0067500000000003,
+        "count": 4,
+        "avg": 0.7516875000000001
+      }
+    },
+    "strategyAvgJudgeOverall": {
+      "source-preserving": {
+        "sum": 10.510000000000002,
+        "count": 12,
+        "avg": 0.8758333333333335
+      },
+      "balanced": {
+        "sum": 11.08,
+        "count": 12,
+        "avg": 0.9233333333333333
+      },
+      "copy-dominant": {
+        "sum": 10.5,
+        "count": 12,
+        "avg": 0.875
+      },
+      "visual-dominant": {
+        "sum": 7.529999999999999,
+        "count": 8,
+        "avg": 0.9412499999999999
+      },
+      "micro-simplified": {
+        "sum": 3.16,
+        "count": 4,
+        "avg": 0.79
+      }
+    },
+    "rejectionReasonCounts": {
+      "N hard judge error": 4,
+      "N hard judge errors": 4,
+      "Readability X% < X% required": 4,
+      "CTA placement X% < X% required": 1
+    },
+    "judgeAverages": {
+      "overallScore": 0.8912500000000003,
+      "sourceSimilarity": 0.937291666666667,
+      "hierarchy": 0.9114583333333336,
+      "readability": 0.8543750000000001,
+      "ctaPlacement": 0.909791666666667,
+      "brandConsistency": 0.9656250000000001
+    }
+  }
+}

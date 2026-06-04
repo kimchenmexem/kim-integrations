@@ -1,0 +1,43 @@
+{
+  "overallScore": 0.35,
+  "sourceSimilarity": 0.55,
+  "hierarchy": 0.45,
+  "readability": 0.2,
+  "ctaPlacement": 0.55,
+  "brandConsistency": 0.85,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline is truncated to 'BUY ETFs COMM' — the words 'COMMISSION FREE' are cut off mid-word. Core message is lost.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "sourceSimilarity",
+      "message": "Variant fails to convey the source's full headline 'BUY ETFs COMMISSION FREE'. Although source itself clips at the right edge, the variant truncates much earlier, removing the key value proposition.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "warning",
+      "category": "ctaPlacement",
+      "message": "CTA pill extends past the right edge of the canvas; the label 'START INVESTING' is clipped to 'START INVE...TING'.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "With the headline truncated mid-word, the CTA and headline compete for attention rather than establishing a clear primary→secondary reading order.",
+      "location": "HeadlineBlock, CTABlock"
+    }
+  ],
+  "notes": "Brand palette, logo, and disclaimer treatment are preserved, but the headline truncation is a blocking issue. CTA clipping is inherited from the source but still degrades quality.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 88,
+    "output_tokens": 494,
+    "cache_creation_input_tokens": 2022,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:06:16.322Z"
+}

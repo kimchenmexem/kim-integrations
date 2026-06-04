@@ -1,0 +1,25 @@
+{
+  "overallScore": 0.95,
+  "sourceSimilarity": 0.96,
+  "hierarchy": 0.95,
+  "readability": 0.94,
+  "ctaPlacement": 0.95,
+  "brandConsistency": 0.97,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Headline appears slightly smaller than the source rendering, reducing the dominance of 'TRADE GLOBALLY' against the subheadline. Low impact at this format.",
+      "location": "HeadlineBlock"
+    }
+  ],
+  "notes": "Variant faithfully mirrors the source composition: logo top-left, yellow serif headline upper-left, white subheadline, decorative circle top-right, white CTA pill bottom-right, disclaimer bottom. Color palette, typography, and hierarchy are preserved. Only minor deviation is a marginally smaller headline scale.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 314,
+    "output_tokens": 286,
+    "cache_creation_input_tokens": 2003,
+    "cache_read_input_tokens": 2643
+  },
+  "generatedAt": "2026-06-01T09:23:30.529Z"
+}

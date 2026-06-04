@@ -1,0 +1,54 @@
+{
+  "overallScore": 0.32,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.4,
+  "readability": 0.3,
+  "ctaPlacement": 0.25,
+  "brandConsistency": 0.7,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "The MEXEM logo at the top is clipped by the canvas — only the lower portion of the wordmark is visible.",
+      "location": "LogoBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA label 'START INVEST)' is clipped at the right edge of the canvas; the full call-to-action text is not readable.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA pill extends past the right canvas edge with zero padding, violating the ≥16px breathing-room requirement.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "readability",
+      "message": "Headline 'BUY ETFs COMMISSION FREE!' fills nearly the entire width with minimal margin to the left and top edges, creating a cramped feel at 728×90.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because the CTA label is clipped and the logo is clipped, the headline dominates by default rather than by intentional hierarchy; the CTA fails to register as the secondary focal point.",
+      "location": "global"
+    },
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant is a near-exact replica of the source, including the same clipping defects — composition and color story are preserved faithfully."
+    }
+  ],
+  "notes": "Variant mirrors the source almost pixel-for-pixel, but inherits the same critical clipping problems on both the logo and the CTA, which are blocking for shipping.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 336,
+    "output_tokens": 591,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:07:31.589Z"
+}

@@ -1,0 +1,148 @@
+{
+  "campaignId": "cam_test_mpuzhafw",
+  "language": "en",
+  "format": "1080x1080",
+  "championId": null,
+  "reason": "No candidate met the eligibility gates (deterministic QA must have no errors, AI judge must have no hard errors, CTA placement ≥ 60%, brand consistency ≥ 65%, readability ≥ 55%).",
+  "strategies": [
+    {
+      "candidateId": "candidate_source-preserving",
+      "strategyId": "source-preserving",
+      "strategyName": "Source-preserving",
+      "description": "Baseline layout matching the source."
+    },
+    {
+      "candidateId": "candidate_balanced",
+      "strategyId": "balanced",
+      "strategyName": "Balanced",
+      "description": "Mild headline compression for breathing room."
+    },
+    {
+      "candidateId": "candidate_degraded",
+      "strategyId": "copy-dominant",
+      "strategyName": "Copy-dominant",
+      "description": "Deliberately-truncated headline to verify rejection."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "candidate_source-preserving",
+      "strategyId": "source-preserving",
+      "strategyName": "Source-preserving",
+      "weightedScore": 0,
+      "eligible": false,
+      "rejectionReasons": [
+        "3 hard judge errors",
+        "CTA placement 20% < 60% required",
+        "Readability 20% < 55% required"
+      ],
+      "judgeSummary": {
+        "overallScore": 0.28,
+        "sourceSimilarity": 0.92,
+        "hierarchy": 0.35,
+        "readability": 0.2,
+        "ctaPlacement": 0.2,
+        "brandConsistency": 0.85,
+        "issueCount": 6,
+        "errorCount": 3
+      },
+      "qaSummary": {
+        "passed": true,
+        "errorCount": 0,
+        "warningCount": 0
+      },
+      "paths": {
+        "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_source-preserving.svg",
+        "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_source-preserving.png",
+        "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_source-preserving.qa.json",
+        "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_source-preserving.judge.json"
+      }
+    },
+    {
+      "candidateId": "candidate_balanced",
+      "strategyId": "balanced",
+      "strategyName": "Balanced",
+      "weightedScore": 0,
+      "eligible": false,
+      "rejectionReasons": [
+        "3 hard judge errors",
+        "CTA placement 20% < 60% required",
+        "Readability 20% < 55% required"
+      ],
+      "judgeSummary": {
+        "overallScore": 0.28,
+        "sourceSimilarity": 0.95,
+        "hierarchy": 0.35,
+        "readability": 0.2,
+        "ctaPlacement": 0.2,
+        "brandConsistency": 0.9,
+        "issueCount": 5,
+        "errorCount": 3
+      },
+      "qaSummary": {
+        "passed": true,
+        "errorCount": 0,
+        "warningCount": 0
+      },
+      "paths": {
+        "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_balanced.svg",
+        "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_balanced.png",
+        "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_balanced.qa.json",
+        "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_balanced.judge.json"
+      }
+    },
+    {
+      "candidateId": "candidate_degraded",
+      "strategyId": "copy-dominant",
+      "strategyName": "Copy-dominant",
+      "weightedScore": 0,
+      "eligible": false,
+      "rejectionReasons": [
+        "3 hard judge errors",
+        "CTA placement 25% < 60% required",
+        "Readability 20% < 55% required"
+      ],
+      "judgeSummary": {
+        "overallScore": 0.28,
+        "sourceSimilarity": 0.95,
+        "hierarchy": 0.4,
+        "readability": 0.2,
+        "ctaPlacement": 0.25,
+        "brandConsistency": 0.85,
+        "issueCount": 5,
+        "errorCount": 3
+      },
+      "qaSummary": {
+        "passed": true,
+        "errorCount": 0,
+        "warningCount": 0
+      },
+      "paths": {
+        "svg": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_degraded.svg",
+        "png": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_degraded.png",
+        "qa": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_degraded.qa.json",
+        "judge": "/Users/KimChen/Desktop/kim-integrations/ai-campaign-banner/data/campaigns/cam_test_mpuzhafw/candidates/en/1080x1080/candidate_degraded.judge.json"
+      }
+    }
+  ],
+  "rules": {
+    "minCtaPlacement": 0.6,
+    "minBrandConsistency": 0.65,
+    "minReadability": 0.55,
+    "weights": {
+      "overall": 0.45,
+      "readability": 0.15,
+      "ctaPlacement": 0.15,
+      "brandConsistency": 0.1,
+      "hierarchy": 0.075,
+      "sourceSimilarity": 0.075
+    },
+    "penalties": {
+      "qaError": 0.2,
+      "qaWarning": 0.05,
+      "judgeError": 0.15,
+      "judgeWarning": 0.04
+    }
+  },
+  "generatedAt": "2026-06-01T09:06:50.191Z"
+}

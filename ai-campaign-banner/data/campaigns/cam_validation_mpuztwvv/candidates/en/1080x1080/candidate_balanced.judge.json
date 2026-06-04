@@ -1,0 +1,25 @@
+{
+  "overallScore": 0.96,
+  "sourceSimilarity": 0.98,
+  "hierarchy": 0.96,
+  "readability": 0.95,
+  "ctaPlacement": 0.94,
+  "brandConsistency": 0.98,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant is a near-pixel match to the source with only minor sub-pixel shifts in headline and subheadline positioning. No meaningful divergence.",
+      "location": "HeadlineBlock"
+    }
+  ],
+  "notes": "Composition, palette, type, and CTA treatment all align with the approved source. Ship-ready.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 1859,
+    "output_tokens": 201,
+    "cache_creation_input_tokens": 1544,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:23:54.322Z"
+}

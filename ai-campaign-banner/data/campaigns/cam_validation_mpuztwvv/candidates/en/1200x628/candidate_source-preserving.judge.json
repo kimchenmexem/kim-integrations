@@ -1,0 +1,18 @@
+{
+  "overallScore": 0.98,
+  "sourceSimilarity": 1,
+  "hierarchy": 0.97,
+  "readability": 0.95,
+  "ctaPlacement": 0.95,
+  "brandConsistency": 1,
+  "issues": [],
+  "notes": "Variant is a pixel-faithful match to the source at the same 1200x628 format. Composition, palette (deep navy bg, yellow headline, white sub, white CTA pill), typography, and block positions are all preserved. Headline 'TRADE GLOBALLY' is dominant, CTA 'Compare markets' is clearly secondary in the bottom-right with adequate padding from the edges, and the disclaimer recedes at the bottom. No truncation, overlap, contrast, or anchoring issues observed.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 1325,
+    "output_tokens": 253,
+    "cache_creation_input_tokens": 1011,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:23:12.436Z"
+}

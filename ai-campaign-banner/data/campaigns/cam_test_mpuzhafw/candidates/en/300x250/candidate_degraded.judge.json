@@ -1,0 +1,48 @@
+{
+  "overallScore": 0.42,
+  "sourceSimilarity": 0.78,
+  "hierarchy": 0.55,
+  "readability": 0.3,
+  "ctaPlacement": 0.5,
+  "brandConsistency": 0.85,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline 'BUY ETFs COMM' is truncated — the word 'COMMISSION' is cut off mid-word, and the expected 'FREE!' line is missing entirely. Source shows the same truncation issue but the variant does not resolve it for the 300x250 format.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "CTA label reads 'START INV' — truncated mid-word. The full call-to-action (e.g. 'START INVESTING') is not legible, undermining the primary conversion element.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "ctaPlacement",
+      "message": "CTA pill sits very close to the right and bottom canvas edges with minimal padding (<16px), reducing breathing room at this small format.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because both the headline and CTA labels are truncated, the visual hierarchy fails to communicate the offer — the eye lands on incomplete text, weakening the reading order.",
+      "location": "HeadlineBlock, CTABlock"
+    },
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Composition mirrors the source (logo top-left, headline center, CTA bottom-right, disclaimer bottom-left) and the headline appears marginally less clipped than the source, but the core truncation problem persists."
+    }
+  ],
+  "notes": "Variant preserves brand palette, typography, and layout faithfully, but both the headline and CTA suffer from text truncation at the 300x250 format, which is a blocking issue for shippability.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 86,
+    "output_tokens": 619,
+    "cache_creation_input_tokens": 244,
+    "cache_read_input_tokens": 2642
+  },
+  "generatedAt": "2026-06-01T09:07:20.603Z"
+}

@@ -1,0 +1,43 @@
+{
+  "overallScore": 0.35,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.5,
+  "readability": 0.25,
+  "ctaPlacement": 0.3,
+  "brandConsistency": 0.85,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline 'BUY ETFs COMMISSION FREE!' is clipped at the right canvas edge — only 'BUY ETFs COMMISSION FRE' is visible, with the final letters and exclamation cut off.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA pill extends past the right canvas edge; the label 'START INVESTING' is clipped, showing only 'START INVE' clearly with 'STING' partially cut off.",
+      "location": "CTABlock bottom-right"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because both headline and CTA are truncated at the right edge, the intended reading hierarchy (headline → CTA) is broken — viewers cannot complete either message.",
+      "location": "right edge"
+    },
+    {
+      "severity": "warning",
+      "category": "sourceSimilarity",
+      "message": "Variant reproduces the source's clipping defects rather than refitting text to the 1200x628 canvas; layout intent is preserved but the same overflow problem is carried over.",
+      "location": "overall composition"
+    }
+  ],
+  "notes": "Variant is essentially identical to the source, including the source's own right-edge clipping of the headline and CTA. Not shippable in current state.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 2110,
+    "output_tokens": 499,
+    "cache_creation_input_tokens": 2624,
+    "cache_read_input_tokens": 0
+  },
+  "generatedAt": "2026-06-01T09:05:57.855Z"
+}

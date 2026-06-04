@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+**/node_modules/
+/.pnp
+.pnp.*
+
+# Build output
+dist/
+build/
+coverage/
+.next/
+/out/
+**/dist/
+**/build/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local databases / Prisma runtime
+*.db
+*.db-journal
+*.db-journal.icloud
+*.sqlite
+*.sqlite3
+.prisma/
+prisma/dev.db
+prisma/*.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor / tooling
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+.sixth/
+
+# TypeScript / Next.js
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Misc
+.cache/
+*.pem
+.env.local.bak
+
+# ai-campaign-banner: local generated/preview assets (regenerable)
+ai-campaign-banner/public/brand-input-preview/
+ai-campaign-banner/public/generated-preview-composites/
+ai-campaign-banner/public/midjourney-uploads/
+ai-campaign-banner/public/midjourney-reference-pack/
+ai-campaign-banner/public/rendered-ads/
+ai-campaign-banner/public/generated-assets/

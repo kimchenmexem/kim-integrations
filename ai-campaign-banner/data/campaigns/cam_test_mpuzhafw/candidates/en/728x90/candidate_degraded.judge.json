@@ -1,0 +1,49 @@
+{
+  "overallScore": 0.18,
+  "sourceSimilarity": 0.35,
+  "hierarchy": 0.3,
+  "readability": 0.15,
+  "ctaPlacement": 0.3,
+  "brandConsistency": 0.7,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline is truncated mid-word: reads 'BUY ETFs COMM' instead of 'BUY ETFs COMMISSION FREE!'. Critical message ('COMMISSION FREE') is lost.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA label is clipped on the right: reads 'START INVEST' with the closing letters and parenthesis cut off by the canvas edge. No right-side padding.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "MEXEM logo wordmark at the top is clipped by the top canvas edge — only the lower portion of the letters is visible.",
+      "location": "LogoBlock"
+    },
+    {
+      "severity": "warning",
+      "category": "sourceSimilarity",
+      "message": "Variant fails to preserve the headline's full copy and CTA label that are intact (though also clipped) in the source, indicating layout/scale was not adapted for 728x90.",
+      "location": "overall"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because the headline is truncated to 'BUY ETFs COMM', the visual reading order conveys no meaningful value proposition before the CTA, weakening hierarchy.",
+      "location": "HeadlineBlock"
+    }
+  ],
+  "notes": "Variant is unshippable: headline, CTA, and logo are all clipped at the 728x90 frame. Brand colors and font choices remain on-brand, but content integrity fails.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 86,
+    "output_tokens": 579,
+    "cache_creation_input_tokens": 250,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:07:53.912Z"
+}

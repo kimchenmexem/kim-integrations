@@ -1,0 +1,54 @@
+{
+  "overallScore": 0.32,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.4,
+  "readability": 0.2,
+  "ctaPlacement": 0.35,
+  "brandConsistency": 0.85,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline 'BUY ETFs COMMISSION FREE!' is clipped on the right edge — only 'BUY ETFs COMMI' is visible. The remainder of 'COMMISSION FREE!' is cut off by the canvas.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "CTA label is truncated to 'START INV' — the full 'START INVESTING' (or equivalent) action verb is cut off by the right edge of the canvas.",
+      "location": "CTABlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA pill extends past the right edge of the 300×250 canvas with zero padding; the button shape itself is clipped, not just the label.",
+      "location": "CTABlock, bottom-right"
+    },
+    {
+      "severity": "error",
+      "category": "sourceSimilarity",
+      "message": "Variant replicates the same clipping defects present in the source rather than adapting the layout to fit the 300×250 format. No corrective resizing of headline or CTA has been applied.",
+      "location": "HeadlineBlock, CTABlock"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because both headline and CTA are clipped, the visual hierarchy collapses — viewers cannot complete the reading path from value prop to action.",
+      "location": "overall"
+    },
+    {
+      "severity": "info",
+      "category": "brandConsistency",
+      "message": "Palette (navy background, yellow headline, white CTA pill, white logo) is consistent with brand. No rogue accents introduced."
+    }
+  ],
+  "notes": "Variant is visually identical to the source and inherits its critical clipping defects. Not shippable at 300×250 without re-fitting the headline and CTA inside the canvas with ≥16px padding.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 217,
+    "output_tokens": 660,
+    "cache_creation_input_tokens": 131,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:07:09.563Z"
+}

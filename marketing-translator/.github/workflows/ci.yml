@@ -1,0 +1,45 @@
+# Build + typecheck on every push and PR.
+#
+# Mirrors what Render runs on deploy (`npm run build:backend`) and what
+# Vercel runs (`npm run build:frontend`). The job is conservative on purpose:
+# no live DB, no live OpenAI / Clerk — just the static checks we can run
+# without secrets. That's enough to catch every regression so far in the
+# project: tsconfig changes, missing @types, broken imports, etc.
+#
+# The legacy ts-node-only test suites under backend/src/test/* need a real
+# Postgres + OpenAI + Clerk, so they don't run here. Add a separate job
+# later if/when those become CI-relevant.
+
+name: ci
+
+on:
+  push:
+    branches: [main, staging-deploy]
+  pull_request:
+    branches: [main, staging-deploy]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # --include=dev is essential — Render's build command uses the same
+      # flag because NODE_ENV defaults to production here too and would
+      # otherwise skip typescript / @types / prisma / ts-node-dev.
+      - name: Install dependencies
+        run: npm ci --include=dev
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Typecheck (backend)
+        run: npm run typecheck
+
+      - name: Build (full monorepo)
+        run: npm run build

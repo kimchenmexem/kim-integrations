@@ -1,0 +1,27 @@
+{
+  "name": "marketing-translator",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm run build --workspace packages/shared && npm run build --workspace backend && npm run build --workspace frontend",
+    "build:backend": "npm run build --workspace packages/shared && npm run build --workspace backend",
+    "build:frontend": "npm run build --workspace packages/shared && npm run build --workspace frontend",
+    "typecheck": "npm run build --workspace packages/shared && npm run typecheck --workspace backend",
+    "prisma:generate": "npm --workspace backend run prisma:generate",
+    "migrate:deploy": "npm --workspace backend run migrate:deploy",
+    "migrate:status": "npm --workspace backend run migrate:status",
+    "promote:admin": "npm --workspace backend run promote:admin --",
+    "start:backend": "npm --workspace backend run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "typescript": "^5.6.0"
+  }
+}

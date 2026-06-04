@@ -1,0 +1,42 @@
+{
+  "overallScore": 0.28,
+  "sourceSimilarity": 0.98,
+  "hierarchy": 0.4,
+  "readability": 0.2,
+  "ctaPlacement": 0.3,
+  "brandConsistency": 0.9,
+  "issues": [
+    {
+      "severity": "error",
+      "category": "readability",
+      "message": "Headline is clipped at the right canvas edge — reads 'BUY ETFs COMMI' with the remainder of the word (likely 'COMMISSION FREE') cut off. Text overflows the 300px canvas.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "error",
+      "category": "ctaPlacement",
+      "message": "CTA label is clipped — reads 'START INV' with the remainder of the word (likely 'INVESTING' or 'INVEST NOW') cut off by the right canvas edge. The pill itself also extends past the canvas boundary.",
+      "location": "CTABlock / bottom-right"
+    },
+    {
+      "severity": "warning",
+      "category": "hierarchy",
+      "message": "Because both the headline and CTA are truncated, the intended reading hierarchy collapses — viewers cannot complete the value proposition or the action prompt.",
+      "location": "HeadlineBlock, CTABlock"
+    },
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant is a near-pixel match to the source, which itself appears to exhibit the same clipping at 300x250. The defect is faithfully reproduced rather than introduced."
+    }
+  ],
+  "notes": "Variant mirrors the source almost exactly, but inherits critical text-clipping defects on both the headline and CTA at this 300x250 format. Not shippable as-is.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 348,
+    "output_tokens": 527,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:06:59.274Z"
+}

@@ -1,0 +1,31 @@
+{
+  "overallScore": 0.94,
+  "sourceSimilarity": 0.97,
+  "hierarchy": 0.93,
+  "readability": 0.92,
+  "ctaPlacement": 0.93,
+  "brandConsistency": 0.96,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Variant is nearly identical to source; the decorative circle in the top-right appears very slightly smaller/darker, a negligible rendering difference.",
+      "location": "top-right corner"
+    },
+    {
+      "severity": "info",
+      "category": "readability",
+      "message": "Subheadline at this 300x250 scale is near the lower readability bound; still legible but leaves little margin for smaller viewports.",
+      "location": "SubheadlineBlock"
+    }
+  ],
+  "notes": "Composition, palette, hierarchy, and CTA treatment all faithfully mirror the source. Production-ready.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 441,
+    "output_tokens": 276,
+    "cache_creation_input_tokens": 131,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:25:05.940Z"
+}

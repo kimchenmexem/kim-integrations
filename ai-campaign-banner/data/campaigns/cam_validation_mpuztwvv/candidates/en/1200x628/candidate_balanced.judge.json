@@ -1,0 +1,18 @@
+{
+  "overallScore": 0.98,
+  "sourceSimilarity": 0.99,
+  "hierarchy": 0.97,
+  "readability": 0.96,
+  "ctaPlacement": 0.96,
+  "brandConsistency": 0.99,
+  "issues": [],
+  "notes": "Variant is essentially identical to the source at the same 1200x628 format. Composition, color story, typography, and block placement all preserved. Headline dominates, CTA pill is clearly secondary, disclaimer recedes appropriately.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 1325,
+    "output_tokens": 160,
+    "cache_creation_input_tokens": 1011,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:23:16.994Z"
+}

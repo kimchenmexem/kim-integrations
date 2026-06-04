@@ -1,0 +1,25 @@
+{
+  "overallScore": 0.97,
+  "sourceSimilarity": 1,
+  "hierarchy": 0.95,
+  "readability": 0.93,
+  "ctaPlacement": 0.95,
+  "brandConsistency": 1,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "readability",
+      "message": "Disclaimer text at the bottom is very small (~8-9px) which is typical for 300x250 but approaches the lower bound of legibility.",
+      "location": "DisclaimerBlock"
+    }
+  ],
+  "notes": "Variant appears visually identical to source. Composition, palette, and typography are preserved. CTA pill is well-placed bottom-right with adequate padding. Headline reads first, CTA second, disclaimer recedes appropriately.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 441,
+    "output_tokens": 237,
+    "cache_creation_input_tokens": 131,
+    "cache_read_input_tokens": 2624
+  },
+  "generatedAt": "2026-06-01T09:24:59.286Z"
+}

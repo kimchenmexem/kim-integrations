@@ -1,0 +1,31 @@
+{
+  "overallScore": 0.93,
+  "sourceSimilarity": 0.95,
+  "hierarchy": 0.95,
+  "readability": 0.94,
+  "ctaPlacement": 0.9,
+  "brandConsistency": 0.96,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Headline and subheadline appear shifted slightly left compared to the source (source left padding ~80px; variant ~70px). Minor drift, no impact on legibility.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "info",
+      "category": "ctaPlacement",
+      "message": "CTA pill sits at the bottom-center rather than horizontally centered with consistent spacing — placement matches the source closely but the pill could use marginally more breathing room above the disclaimer.",
+      "location": "CTABlock"
+    }
+  ],
+  "notes": "Variant is a near-faithful reproduction of the source at the same 1080x1080 format. Composition, palette, type hierarchy, and CTA treatment all preserved. Production-ready.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 315,
+    "output_tokens": 330,
+    "cache_creation_input_tokens": 3068,
+    "cache_read_input_tokens": 2644
+  },
+  "generatedAt": "2026-06-01T09:24:35.294Z"
+}

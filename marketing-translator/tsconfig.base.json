@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+    // baseUrl + paths removed: @mexem/shared is an npm workspace with proper
+    // package.json `main`/`types`, so Node module resolution under
+    // moduleResolution: "Bundler" finds it without an explicit paths map.
+    // baseUrl is deprecated in TS 6 (TS5101) and removing it now is
+    // forward-compatible to TS 7 without needing ignoreDeprecations.
+  }
+}

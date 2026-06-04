@@ -1,0 +1,31 @@
+{
+  "overallScore": 0.95,
+  "sourceSimilarity": 0.97,
+  "hierarchy": 0.95,
+  "readability": 0.94,
+  "ctaPlacement": 0.92,
+  "brandConsistency": 0.98,
+  "issues": [
+    {
+      "severity": "info",
+      "category": "sourceSimilarity",
+      "message": "Headline appears very slightly larger and extends closer to the right edge than the source, narrowing breathing room against the decorative circle.",
+      "location": "HeadlineBlock"
+    },
+    {
+      "severity": "info",
+      "category": "ctaPlacement",
+      "message": "CTA pill is positioned slightly right of center; source places it more centered. Padding from edges remains acceptable.",
+      "location": "CTABlock"
+    }
+  ],
+  "notes": "Variant is a near-faithful reproduction of the source. Composition, palette, typography, and hierarchy all preserved. Minor positional drift only.",
+  "model": "claude-opus-4-7",
+  "usage": {
+    "input_tokens": 315,
+    "output_tokens": 280,
+    "cache_creation_input_tokens": 3068,
+    "cache_read_input_tokens": 2644
+  },
+  "generatedAt": "2026-06-01T09:24:28.235Z"
+}
