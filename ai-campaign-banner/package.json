@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "npm run docs:zones",
     "start": "next start",
     "lint": "eslint",
+    "docs:zones": "tsx scripts/generate-zone-docs.ts",
+    "test:zones": "tsx scripts/validate-zones.ts",
     "brand:intake": "tsx scripts/brand-intake.ts",
     "preview:assets": "tsx scripts/preview-assets.ts",
     "preview:seed-screenshot-tags": "tsx scripts/seed-screenshot-tags.ts",

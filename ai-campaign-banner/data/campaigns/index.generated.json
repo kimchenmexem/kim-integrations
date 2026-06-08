@@ -1,7 +1,106 @@
 {
-  "generated_at": "2026-06-03T12:22:21.637Z",
-  "active_campaign_id": "cam_f38fc99b",
+  "generated_at": "2026-06-08T12:29:56.304Z",
+  "active_campaign_id": "cam_b18ad935",
   "campaigns": [
+    {
+      "campaign_id": "cam_b18ad935",
+      "brand_id": "brand_001",
+      "campaign_name": "Global Access, Simple Investing",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-08T12:29:56.286Z",
+      "active": true,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_a433816f",
+      "brand_id": "brand_001",
+      "campaign_name": "Global Access, Transparent Costs",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-08T08:49:34.163Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_d15bd014",
+      "brand_id": "brand_001",
+      "campaign_name": "Precision Trading Access",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-08T08:32:00.854Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_798de4e1",
+      "brand_id": "brand_001",
+      "campaign_name": "Trade Uninterrupted",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-08T07:46:17.342Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_5b398213",
+      "brand_id": "brand_001",
+      "campaign_name": "Gateway to Global Trading",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-04T10:55:06.006Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_ea62b247",
+      "brand_id": "brand_001",
+      "campaign_name": "Precision Trading, Global Reach",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-04T09:41:21.410Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_32e23995",
+      "brand_id": "brand_001",
+      "campaign_name": "Global Trading Mastery",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-04T09:26:32.256Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_772840f1",
+      "brand_id": "brand_001",
+      "campaign_name": "Global Access, One Account",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-04T09:08:36.571Z",
+      "active": false,
+      "rendered": false
+    },
+    {
+      "campaign_id": "cam_bf21897c",
+      "brand_id": "brand_001",
+      "campaign_name": "Global Trading, Local Precision",
+      "ai_provider": "openai",
+      "concept_count": 3,
+      "ad_count": 45,
+      "created_at": "2026-06-04T08:16:30.330Z",
+      "active": false,
+      "rendered": false
+    },
     {
       "campaign_id": "cam_f38fc99b",
       "brand_id": "brand_001",
@@ -10,7 +109,7 @@
       "concept_count": 3,
       "ad_count": 45,
       "created_at": "2026-06-03T12:22:21.610Z",
-      "active": true,
+      "active": false,
       "rendered": false
     },
     {

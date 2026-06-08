@@ -25,7 +25,7 @@ Until that's confirmed, the renderer keeps using red. After confirmation, swap a
 |---|---|---|
 | Primary navy darkest | `#00122C` | Background top-left, gradient start |
 | Primary navy bright | `#006A97` | Background bottom-right, gradient end |
-| Accent yellow | `#F5C518` | Headline emphasis word, CTA band (leaderboard), highlight elements |
+| Accent yellow | `#F5C518` | Headline emphasis word, highlight elements (NOT used on CTA — see §6) |
 | Pure white | `#FFFFFF` | Headline non-emphasis text, sub-text, disclaimer, CTA pill (portrait) |
 | Disclaimer white | `#FFFFFF` @ 0.85 opacity | Disclaimer line |
 | IBKR red | `#D81222` | Reserved for "Powered by InteractiveBrokers" lockup ONLY |
@@ -112,25 +112,33 @@ When the headline contains a numeric/currency figure (`£1000`, `$0`, `150+`), t
 
 ---
 
-## 6. CTA — two completely different forms
+## 6. CTA — one form, every format
 
-### Leaderboard CTA = full-width yellow band (NEW)
-- **Position:** anchored to the bottom edge of the canvas. Full width.
-- **Height:** ~80–90 px (about 13% of 1200×628 canvas height).
-- **Background color:** yellow `#F5C518`.
-- **Text:** "START INVESTING TODAY >" (or similar) — ALL CAPS, dark navy/black `#0A0F1F`, ~26–32px font, centered horizontally within the band.
-- **Chevron:** unicode `>` or simple SVG chevron, immediately after the text with a small gap.
-- **Border-radius:** 0 (sharp corners — touches the canvas edges).
-- **Replaces** the current pill-shaped CTA centered on the gradient.
+**Updated against the brand-input example SVGs.** All 21 example banners in [brand-input/banner-examples/](../brand-input/banner-examples/) use the same CTA design — a white rounded pill with black bold text. There is no yellow-band variant. The doc's previous "leaderboard = yellow band" rule was a misinterpretation and has been removed (along with the matching QA checks `leaderboard-cta-not-bottom-band` and `leaderboard-cta-not-yellow`).
 
-### Portrait CTA = white pill button
-- **Background:** white `#FFFFFF`.
-- **Text:** "START INVESTING" — ALL CAPS, dark navy/black `#0A0F1F`, ~36px font, centered.
-- **Border-radius:** half-height (full pill).
-- **Width:** ~60% of canvas width, horizontally centered.
-- **Position:** vertically below the headline, above the disclaimer (NOT bottom-anchored).
-- **No chevron** in the portrait example.
-- This stays close to today's renderer behavior, just with white fill instead of brand-blue.
+**Universal CTA design:**
+- **Background:** white `#FFFFFF` (solid, no gradient, no border).
+- **Text:** "START INVESTING" — ALL CAPS, black `#000000`, Poppins bold (`font_weight: 700`), centered.
+- **Border-radius:** ~17% of button height (measured ratio across 12 example SVGs ranges 0.149–0.196; we use 0.17).
+- **Font size:** 39% of CTA height (constant `CTA_FONT_SIZE_RATIO = 0.39`). Measured across the example SVGs the ratio is 0.388–0.392 — extremely tight, so a fixed constant is safe. Enforced by `applyMexemZones()` during the zone snap; the AI's font-size choice is overridden.
+- **Border / shadow:** none.
+
+**Per-format CTA box** (position and size) is owned by the `cta` zone in §8 below. The CTA *styling* above is enforced by [src/lib/formats/mexemZones.ts](../src/lib/formats/mexemZones.ts) → `CTA_STYLE`, applied during the zone snap. Every CTA element coming out of `applyMexemZones()` carries these exact values.
+
+**Source SVGs the CTA design was extracted from:**
+
+| Format | Pill box (from SVG) | Border-radius |
+|---|---|---|
+| 300×250 | (14, 167, 112.7, 29) | 4.33 |
+| 336×280 | (11, 195, 124, 25.7) | 5.04 |
+| 1080×1080 | (293, 855, 492, 102) | 20 |
+| 1080×1920 | (336, 837, 408, 84.6) | 16.59 |
+| 1200×629 | (43, 484, 321, 66.5) | 10 |
+| 1200×1200 | (326, 950, 547, 113.3) | 22.22 |
+| 960×1200 | (319, 606, 321, 66.5) | 10 |
+| 728×93 | (591, 26, 124, 25.7) | 5.04 |
+
+(The current `cta` zones in §8 use these positions for the formats where the SVG and PDF agree, and our derived values otherwise. Where you want pixel-exact alignment to a brand example, copy the row above into `MEXEM_ZONES`.)
 
 ---
 
@@ -158,82 +166,271 @@ When the headline contains a numeric/currency figure (`£1000`, `$0`, `150+`), t
 
 ## 8. Layout grids
 
-### Leaderboard (1200×628) — text-leading + bottom-band CTA
+Each format defines 5 zones — `logo`, `text`, `cta`, `risk_msg`, `element` — given as an axis-aligned bounding box `(x, y, width, height)` in canvas pixels with origin top-left.
 
-```
-╔════════════════════════════════════════════════════════════╗
-║ ┌──────────┐                                               ║   ← top: 50px padding
-║ │  MEXEM   │                                               ║
-║ └──────────┘                                               ║
-║                                                            ║
-║   YELLOW HEADLINE LINE 1,                ┌─────────────┐  ║   ← headline starts ~y=220
-║   WHITE HEADLINE LINE 2.                 │             │  ║
-║                                          │   DEVICE    │  ║
-║   Caution. Investing involves...         │   MOCKUP    │  ║
-║                                          │             │  ║
-║                                          └─────────────┘  ║
-║                                                            ║
-║ ╔══════════════════════════════════════════════════════╗  ║   ← CTA band starts ~y=540
-║ ║       START INVESTING TODAY  >                       ║  ║   yellow #F5C518, full-width
-║ ╚══════════════════════════════════════════════════════╝  ║
-╚════════════════════════════════════════════════════════════╝
-1200 × 628
-```
+These tables are the **authoritative source of truth** for banner layout: they're loaded verbatim by [src/lib/formats/mexemZones.ts](../src/lib/formats/mexemZones.ts) into `MEXEM_ZONES`, and [src/lib/ai/buildAdSpecsFromPlan.ts](../src/lib/ai/buildAdSpecsFromPlan.ts) snaps every element with a matching role to its zone after the AI plan is built. The AI no longer decides positions — it only chooses copy + concept + visual.
 
-| Region | x | y | w | h |
+**Provenance:**
+- Widths × heights for the 7 formats below are transcribed from `MEXEM_Banner_Specifications.pdf` Section 1 (the brand team's annotated screenshots).
+- X/Y are derived from the PDF's Section 2 spacing callouts ("34px top, 10px left logo inset, …") and the appendix screenshots.
+- The role → zone mapping is fixed: `logo→logo`, `headline/subheadline/body→text` (each at a **fixed sub-slot** — see below), `cta→cta`, `legal-disclaimer→risk_msg`, `product_visual/hero-image/supporting-image→element`. Decorative *text* elements (eyebrow, kicker, stat label) are **hidden** (`visible: false`) since they have no fixed slot. Background and decorative *shapes* are not snapped.
+
+<!-- BEGIN AUTO-GENERATED FROM MEXEM_ZONES — do not edit by hand; run `npm run docs:zones` to regenerate -->
+
+**Layout classes** (every format belongs to exactly one):
+
+| Class | Formats |
+|---|---|
+| Wide leaderboard | `1200x628`, `970x250` |
+| Tall portrait | `1080x1920`, `960x1200`, `300x1050`, `300x600` |
+| Square | `1080x1080`, `1200x1200`, `250x250` |
+| Compact rectangle | `300x250`, `336x280` |
+| Narrow skyscraper | `160x600` |
+| Placement marker | `320x100`, `320x50`, `728x90` |
+
+**Text sub-slots inside the `text` zone.** The text zone is split top-to-bottom into three fixed bands. Each text role lands in its own band regardless of whether the other roles exist. Values come from `TEXT_SLOT_RATIOS` in `mexemZones.ts`.
+
+| Role | Vertical span (fraction of text zone height) |
+|---|---|
+| headline | 60% (0.00 → 0.60) |
+| subheadline | 25% (0.60 → 0.85) |
+| body | 15.000000000000002% (0.85 → 1.00) |
+
+**Role → zone mapping** (the contract `applyMexemZones()` enforces at render time):
+
+| Element role | Zone | Notes |
+|---|---|---|
+| `logo` | `logo` | Snapped 1:1 |
+| `headline` | `text` → headline sub-slot | top fraction of the text zone |
+| `subheadline` | `text` → subheadline sub-slot | next fraction; skipped on formats with `noSubheadline: true` |
+| `body` | `text` → body sub-slot | bottom fraction |
+| `cta` | `cta` | Snapped 1:1 + style enforced (see CTA section below) |
+| `legal-disclaimer` | `risk_msg` | Snapped 1:1 |
+| `product_visual`, `hero-image`, `supporting-image` | `element` | Snapped 1:1 |
+| anything else with `type: "text"` | hidden (`visible: false`) | Decorative text has no fixed slot |
+
+**CTA styling** (applied by `applyMexemZones()` to every element snapped to the `cta` zone):
+
+- Background: `#FFFFFF` (white pill)
+- Text color: `#000000` (pure black)
+- Font: Poppins 700
+- Border radius: `0.17` × zone height (≈ 17% of pill height)
+- Font size: `0.39` × zone height (≈ 39% of pill height)
+- Object-fit on image fills: `contain`
+
+### 1200×628 — LinkedIn / Facebook leaderboard
+
+- **Class:** Wide leaderboard
+- **Canvas:** 1200 × 628 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
 |---|---|---|---|---|
-| Logo | 50 | 50 | ~200 | ~50 |
-| Headline block | 50 | 200 | ~600 | ~260 |
-| Disclaimer | 50 | 470 | ~600 | ~30 |
-| Visual region | 700 | 80 | ~450 | ~440 |
-| CTA band | 0 | 540 | 1200 | 88 |
+| logo | 54 | 54 | 456 | 90 |
+| text | 54 | 170 | 711 | 161 |
+| cta | 43 | 484 | 321 | 67 |
+| risk_msg | 0 | 562 | 1200 | 66 |
+| element | 770 | 65 | 426 | 410 |
 
-### Portrait (1080×1920) — centered editorial + bottom phone
+### 970×250 — IAB billboard
 
-```
-╔══════════════════════════╗
-║                          ║
-║       ┌──MEXEM──┐        ║   ← logo block centered, ~y=140
-║       │ Powered │        ║
-║       │  by IB  │        ║
-║       └─────────┘        ║
-║                          ║
-║   BUILD YOUR ISA         ║   ← headline starts ~y=400
-║   AND GET UP TO          ║
-║                          ║
-║      £ 1 0 0 0           ║   ← mega-stat ~y=700
-║                          ║
-║       IN CASH!           ║   ← y=950 ish
-║                          ║
-║   ┌──────────────┐       ║   ← white pill CTA ~y=1180
-║   │ START INVEST │       ║
-║   └──────────────┘       ║
-║                          ║
-║   Caution. Investing...  ║   ← disclaimer ~y=1300
-║                          ║
-║      ┌──────────┐        ║   ← phone mockup, bottom ~y=1380
-║      │   AAPL   │        ║
-║      │  chart   │        ║
-║      └──────────┘        ║
-║                          ║
-║  (subtle candlestick     ║
-║   pattern @ 0.07 opa)    ║
-╚══════════════════════════╝
-1080 × 1920
-```
+- **Class:** Wide leaderboard
+- **Canvas:** 970 × 250 px
+- **`noSubheadline`:** `false`
 
-| Region | x | y | w | h |
+| Zone | x | y | width | height |
 |---|---|---|---|---|
-| Logo + sub-lockup | 190 | 140 | 700 | 220 |
-| Headline block (centered) | 60 | 400 | 960 | 700 |
-| CTA pill (centered) | 290 | 1180 | 500 | 80 |
-| Disclaimer (centered) | 60 | 1290 | 960 | 60 |
-| Phone mockup (centered) | 280 | 1380 | 520 | 540 |
-| Background candlestick texture | 0 | 1200 | 1080 | 720 (low opacity) |
+| logo | 40 | 25 | 240 | 36 |
+| text | 40 | 75 | 700 | 100 |
+| cta | 40 | 178 | 200 | 32 |
+| risk_msg | 0 | 221 | 970 | 29 |
+| element | 760 | 0 | 210 | 220 |
 
-### Square (1080×1080) — extrapolated from leaderboard pattern
+### 1080×1920 — Story / portrait
 
-Reference uses a similar text-leading + visual-right layout, scaled. Logo top-center is also valid given square's symmetric proportions. Best to A/B test once we have a real square reference.
+- **Class:** Tall portrait
+- **Canvas:** 1080 × 1920 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 144 | 182 | 787 | 171 |
+| text | 71 | 460 | 938 | 534 |
+| cta | 71 | 1100 | 938 | 87 |
+| risk_msg | 71 | 1220 | 938 | 83 |
+| element | 0 | 1340 | 1080 | 568 |
+
+### 960×1200 — Social portrait 4:5
+
+- **Class:** Tall portrait
+- **Canvas:** 960 × 1200 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 215 | 89 | 523 | 98 |
+| text | 107 | 270 | 746 | 297 |
+| cta | 300 | 600 | 359 | 86 |
+| risk_msg | 0 | 1134 | 960 | 66 |
+| element | 0 | 720 | 960 | 371 |
+
+### 300×1050 — Portrait skyscraper
+
+- **Class:** Tall portrait
+- **Canvas:** 300 × 1050 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 10 | 280 | 36 |
+| text | 12 | 280 | 280 | 200 |
+| cta | 67 | 491 | 165 | 34 |
+| risk_msg | 0 | 1009 | 300 | 41 |
+| element | 0 | 560 | 300 | 440 |
+
+### 300×600 — Vertical half-page
+
+- **Class:** Tall portrait
+- **Canvas:** 300 × 600 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 10 | 280 | 32 |
+| text | 18 | 110 | 264 | 140 |
+| cta | 53 | 275 | 193 | 50 |
+| risk_msg | 10 | 340 | 280 | 28 |
+| element | 0 | 370 | 300 | 230 |
+
+### 1080×1080 — Instagram feed square
+
+- **Class:** Square
+- **Canvas:** 1080 × 1080 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 70 | 70 | 457 | 100 |
+| text | 70 | 200 | 535 | 502 |
+| cta | 70 | 750 | 535 | 85 |
+| risk_msg | 0 | 968 | 1080 | 112 |
+| element | 615 | 140 | 373 | 811 |
+
+### 1200×1200 — LinkedIn / generic square
+
+- **Class:** Square
+- **Canvas:** 1200 × 1200 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 256 | 86 | 688 | 141 |
+| text | 175 | 320 | 850 | 275 |
+| cta | 421 | 650 | 358 | 85 |
+| risk_msg | 0 | 1098 | 1200 | 102 |
+| element | 0 | 760 | 1200 | 348 |
+
+### 250×250 — Square compact
+
+- **Class:** Square
+- **Canvas:** 250 × 250 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 9 | 8 | 130 | 22 |
+| text | 9 | 70 | 130 | 90 |
+| cta | 9 | 174 | 124 | 26 |
+| risk_msg | 0 | 229 | 250 | 21 |
+| element | 141 | 43 | 109 | 186 |
+
+### 300×250 — Compact rectangle
+
+- **Class:** Compact rectangle
+- **Canvas:** 300 × 250 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 10 | 153 | 29 |
+| text | 10 | 50 | 184 | 100 |
+| cta | 10 | 165 | 125 | 26 |
+| risk_msg | 0 | 225 | 300 | 25 |
+| element | 190 | 40 | 104 | 171 |
+
+### 336×280 — Compact rectangle larger variant
+
+- **Class:** Compact rectangle
+- **Canvas:** 336 × 280 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 10 | 153 | 30 |
+| text | 10 | 55 | 185 | 101 |
+| cta | 10 | 175 | 125 | 26 |
+| risk_msg | 0 | 252 | 336 | 28 |
+| element | 200 | 23 | 136 | 234 |
+
+### 160×600 — Narrow skyscraper
+
+- **Class:** Narrow skyscraper
+- **Canvas:** 160 × 600 px
+- **`noSubheadline`:** `false`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 10 | 140 | 24 |
+| text | 7 | 130 | 145 | 110 |
+| cta | 18 | 260 | 124 | 26 |
+| risk_msg | 0 | 566 | 160 | 34 |
+| element | 0 | 310 | 160 | 240 |
+
+### 320×100 — Wide micro mobile banner *(no subheadline)*
+
+- **Class:** Placement marker
+- **Canvas:** 320 × 100 px
+- **`noSubheadline`:** `true`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 12 | 70 | 16 |
+| text | 86 | 28 | 145 | 35 |
+| cta | 140 | 67 | 50 | 12 |
+| risk_msg | 0 | 88 | 320 | 12 |
+| element | 235 | 5 | 85 | 75 |
+
+### 320×50 — Ultra-wide mobile banner *(no subheadline)*
+
+- **Class:** Placement marker
+- **Canvas:** 320 × 50 px
+- **`noSubheadline`:** `true`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 5 | 8 | 60 | 14 |
+| text | 70 | 10 | 195 | 26 |
+| cta | 265 | 15 | 50 | 12 |
+| risk_msg | 0 | 41 | 320 | 9 |
+| element | 315 | 0 | 5 | 41 |
+
+### 728×90 — IAB leaderboard *(no subheadline)*
+
+- **Class:** Placement marker
+- **Canvas:** 728 × 90 px
+- **`noSubheadline`:** `true`
+
+| Zone | x | y | width | height |
+|---|---|---|---|---|
+| logo | 10 | 10 | 110 | 30 |
+| text | 130 | 15 | 350 | 50 |
+| cta | 485 | 27 | 130 | 36 |
+| risk_msg | 0 | 78 | 728 | 12 |
+| element | 620 | 10 | 80 | 60 |
+
+> All 15 formats declared in `CampaignFormatSchema` have zone tables defined in `MEXEM_ZONES`.
+
+<!-- END AUTO-GENERATED -->
 
 ---
 
@@ -260,8 +457,7 @@ Visual variety comes from:
 |---|---|---|---|
 | Accent color | Red `#D81222` | Yellow `#F5C518` | **HIGH** — confirm with brand team first |
 | Headline | Single color (white on dark) | 2-color split (yellow first part, white rest) | **HIGH** — needs new manifest field + AI prompt rule |
-| CTA on leaderboard | Centered pill or filled rectangle | Full-width bottom band | **HIGH** — new layout primitive |
-| CTA on portrait | Filled pill, brand-blue | White pill, dark text | MEDIUM — easy color swap |
+| CTA (all formats) | Filled pill, brand-blue / varying styles | White rounded pill, black bold Poppins, ~17% radius | **DONE** — enforced by `CTA_STYLE` in `mexemZones.ts` |
 | Disclaimer position | Below CTA | Above CTA, between headline and CTA | MEDIUM — small layout change |
 | Decorative motifs | Often visible (chart, wave, etc.) | None or very subtle candlestick texture | MEDIUM — already a knob (use_motif) |
 | Logo on portrait | Top-left, small | Top-center, large, with IBKR sub-lockup | MEDIUM — new orientation rule |
@@ -306,9 +502,11 @@ DECORATIVE LAYERS — minimal by default:
   - No pattern unless the brief asks for "texture-led".
   - The visual variety comes from the device mockup choice + the headline split, not from generated SVG.
 
-CTA — two forms:
-  - Leaderboard (1200x628): full-width yellow band at canvas bottom, dark text, "START INVESTING TODAY >".
-  - Portrait (1080x1920): white pill, dark text, centered horizontally between headline and disclaimer.
+CTA — one form, every format:
+  - White rounded pill, black bold Poppins, ~17% border-radius.
+  - Text: "START INVESTING" (or whatever the brief defines), ALL CAPS, centered.
+  - Position comes from the per-format `cta` zone in BANNER_REFERENCE_RULES §8.
+  - Style enforced automatically by `applyMexemZones()`; the AI shouldn't pick CTA colors.
 ```
 
 ---

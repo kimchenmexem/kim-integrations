@@ -102,8 +102,18 @@ export async function exportCampaignSvg(
     );
     const renderedHref = renderedImages.get(item.adId);
     if (renderedHref) {
+      // `preserveAspectRatio="none"` was the previous default — it
+      // STRETCHES the image to fill the box, which Figma honors
+      // literally and produces visible smearing whenever the rendered
+      // PNG's pixel dimensions don't exactly match `item.width × item.
+      // height` (any sub-pixel drift, density rounding, or canvas-size
+      // mismatch). Switching to `xMidYMid slice` (= CSS object-fit:
+      // cover, centered) preserves aspect AND fills the box: when the
+      // PNG matches the box aspect there's no visible difference, but
+      // when it doesn't, the export crops a few pixels instead of
+      // distorting the entire image.
       pieces.push(
-        `    <image href="${escAttr(renderedHref)}" xlink:href="${escAttr(renderedHref)}" x="${fmtNum(item.x)}" y="${fmtNum(item.y)}" width="${fmtNum(item.width)}" height="${fmtNum(item.height)}" preserveAspectRatio="none"/>`,
+        `    <image href="${escAttr(renderedHref)}" xlink:href="${escAttr(renderedHref)}" x="${fmtNum(item.x)}" y="${fmtNum(item.y)}" width="${fmtNum(item.width)}" height="${fmtNum(item.height)}" preserveAspectRatio="xMidYMid slice"/>`,
       );
     } else {
       const adSvg = await exportAdSvg({

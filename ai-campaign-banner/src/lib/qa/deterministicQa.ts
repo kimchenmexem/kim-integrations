@@ -24,6 +24,10 @@ import type {
   Element,
   ElementManifest,
 } from "@/lib/schemas/elementManifest.schema";
+import {
+  CANONICAL_MEXEM_ZONES,
+  type CanonicalBannerLayout,
+} from "@/lib/formats/mexemZones";
 
 export const DeterministicSeveritySchema = z.enum(["info", "warn", "block"]);
 export type DeterministicSeverity = z.infer<typeof DeterministicSeveritySchema>;
@@ -300,26 +304,12 @@ function runChecksForBanner(
       });
     }
   }
-  if (cta && manifest.size.width === 1200 && manifest.size.height === 628) {
-    if (cta.x !== 0 || cta.width < manifest.size.width - 1) {
-      violations.push({
-        check_id: "leaderboard-cta-not-bottom-band",
-        severity: "block",
-        description:
-          "1200x628 reference CTA must be a full-width bottom band.",
-        element_id: cta.id,
-      });
-    }
-    if (normalizeHex(cta.background_color) !== "#F5C518") {
-      violations.push({
-        check_id: "leaderboard-cta-not-yellow",
-        severity: "block",
-        description:
-          "1200x628 reference CTA band must use the MEXEM yellow accent #F5C518.",
-        element_id: cta.id,
-      });
-    }
-  }
+  // Note: the previous `leaderboard-cta-not-bottom-band` and
+  // `leaderboard-cta-not-yellow` rules enforced a full-width yellow CTA band
+  // for 1200×628. Both were removed once the actual brand-input example SVGs
+  // (brand-input/banner-examples/*.svg) showed every MEXEM banner uses a
+  // white pill CTA with black bold text. CTA styling is now enforced by
+  // src/lib/formats/mexemZones.ts → CTA_STYLE, applied during the zone snap.
   // Disclaimer position vs CTA:
   //   - Full-width bottom-band CTA (e.g. 1200×628 yellow strip) → disclaimer
   //     MUST sit above (block when below).
@@ -392,7 +382,137 @@ function runChecksForBanner(
     }
   }
 
+  // ── Canonical-zone compliance ─────────────────────────────────────
+  // Defense-in-depth: applyMexemZones() snaps elements to the canonical
+  // safe zones at manifest-build time. These checks catch the case
+  // where the snap was skipped (non-MEXEM brand, unknown format) or
+  // where downstream code mutated geometry after the snap.
+  const formatKey = `${manifest.size.width}x${manifest.size.height}`;
+  const canonical = CANONICAL_MEXEM_ZONES[formatKey];
+  if (canonical) {
+    pushCanonicalZoneViolations(violations, manifest, canonical, visible);
+  }
+
   return violations;
+}
+
+// Tolerance for "element is inside its canonical zone" checks. Renderers
+// commonly snap to subpixel positions; allow ±1 px before flagging.
+const CANONICAL_ZONE_TOLERANCE_PX = 1;
+
+const CANONICAL_ROLE_TO_ZONE: ReadonlyArray<{
+  role: Element["role"];
+  zoneName: "logo" | "text" | "cta" | "risk_msg" | "element";
+  checkId: string;
+}> = [
+  { role: "logo", zoneName: "logo", checkId: "canonical-logo-out-of-zone" },
+  { role: "headline", zoneName: "text", checkId: "canonical-headline-out-of-zone" },
+  { role: "subheadline", zoneName: "text", checkId: "canonical-subheadline-out-of-zone" },
+  { role: "cta", zoneName: "cta", checkId: "canonical-cta-out-of-zone" },
+  { role: "legal-disclaimer", zoneName: "risk_msg", checkId: "canonical-disclaimer-out-of-zone" },
+  { role: "product_visual", zoneName: "element", checkId: "canonical-product-visual-out-of-zone" },
+];
+
+function pushCanonicalZoneViolations(
+  violations: DeterministicViolation[],
+  manifest: ElementManifest,
+  canonical: CanonicalBannerLayout,
+  visible: Element[],
+): void {
+  // 1. Canvas dimensions must match the canonical canvas.
+  if (
+    manifest.size.width !== canonical.canvas.width ||
+    manifest.size.height !== canonical.canvas.height
+  ) {
+    violations.push({
+      check_id: "canonical-canvas-mismatch",
+      severity: "block",
+      description: `Manifest canvas ${manifest.size.width}×${manifest.size.height} doesn't match canonical canvas ${canonical.canvas.width}×${canonical.canvas.height} for format key.`,
+    });
+  }
+
+  // 2. Required roles.
+  //   - logo, headline, cta, legal-disclaimer — required on every banner.
+  //   - product_visual — required on every NON-Placement-marker format.
+  //     Placement markers (728×90, 320×100, 320×50) have intentionally
+  //     tiny element zones — 320×50's is a 5×41 sliver — so the brand
+  //     reference for those formats often ships without a product
+  //     visual at all. Requiring it there would block legitimate
+  //     micro-banner saves.
+  //   - subheadline — always optional; forbidden on Placement markers
+  //     (see check #3).
+  const requiredRoles: Element["role"][] = [
+    "logo",
+    "headline",
+    "cta",
+    "legal-disclaimer",
+  ];
+  if (canonical.layoutClass !== "Placement marker") {
+    requiredRoles.push("product_visual");
+  }
+  for (const role of requiredRoles) {
+    if (!visible.some((el) => el.role === role)) {
+      violations.push({
+        check_id: "canonical-missing-required-role",
+        severity: "block",
+        description: `Canonical layout for ${canonical.canvas.width}×${canonical.canvas.height} requires a visible "${role}" element; none found.`,
+      });
+    }
+  }
+
+  // 3. noSubheadline rule: placement-marker formats must NOT render a
+  // visible subheadline element.
+  if (canonical.noSubheadline) {
+    const subheadline = visible.find((el) => el.role === "subheadline");
+    if (subheadline) {
+      violations.push({
+        check_id: "canonical-subheadline-on-placement-marker",
+        severity: "block",
+        description: `Format ${canonical.canvas.width}×${canonical.canvas.height} is a Placement marker (noSubheadline=true) but a subheadline element "${subheadline.id}" is visible.`,
+        element_id: subheadline.id,
+      });
+    }
+  }
+
+  // 4. Off-canvas check — every visible element must fit inside the
+  // canvas with ±1 px tolerance for subpixel rendering.
+  for (const el of visible) {
+    if (
+      el.x < -CANONICAL_ZONE_TOLERANCE_PX ||
+      el.y < -CANONICAL_ZONE_TOLERANCE_PX ||
+      el.x + el.width > canonical.canvas.width + CANONICAL_ZONE_TOLERANCE_PX ||
+      el.y + el.height > canonical.canvas.height + CANONICAL_ZONE_TOLERANCE_PX
+    ) {
+      violations.push({
+        check_id: "canonical-off-canvas",
+        severity: "block",
+        description: `Element "${el.id}" (role: ${el.role}) at (${el.x},${el.y},${el.width},${el.height}) extends outside canonical canvas ${canonical.canvas.width}×${canonical.canvas.height}.`,
+        element_id: el.id,
+      });
+    }
+  }
+
+  // 5. Per-role canonical-zone containment — each role-mapped element
+  // must lie inside its canonical zone (with the small tolerance).
+  for (const { role, zoneName, checkId } of CANONICAL_ROLE_TO_ZONE) {
+    const el = visible.find((e) => e.role === role);
+    if (!el) continue;
+    const zone = canonical.zones[zoneName];
+    const t = CANONICAL_ZONE_TOLERANCE_PX;
+    const insideZone =
+      el.x >= zone.x - t &&
+      el.y >= zone.y - t &&
+      el.x + el.width <= zone.x + zone.width + t &&
+      el.y + el.height <= zone.y + zone.height + t;
+    if (!insideZone) {
+      violations.push({
+        check_id: checkId,
+        severity: "block",
+        description: `Element "${el.id}" (role: ${role}) at (${el.x},${el.y},${el.width},${el.height}) is outside canonical ${zoneName} zone (${zone.x},${zone.y},${zone.width},${zone.height}).`,
+        element_id: el.id,
+      });
+    }
+  }
 }
 
 function findByRole(elements: Element[], role: Element["role"]): Element | undefined {

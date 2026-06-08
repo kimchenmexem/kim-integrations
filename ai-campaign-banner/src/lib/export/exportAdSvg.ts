@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 import type { CampaignPlan } from "@/lib/schemas/aiCampaignPlan.schema";
 import type { Element } from "@/lib/schemas/elementManifest.schema";
 
@@ -305,16 +306,18 @@ async function renderImageElement(args: {
   //   4. file_url that's a remote URL (Cloudinary) → leave for Figma to
   //      fetch. Falls back to "broken image" if Figma can't reach it.
   let href: string;
+  let naturalW: number | null = null;
+  let naturalH: number | null = null;
   if (embedLocalImages) {
     if (localPath && localPath.startsWith("/")) {
-      href = await tryEmbedDataUri(cwd, localPath, fileUrl ?? "");
+      ({ href, naturalW, naturalH } = await tryEmbedDataUri(cwd, localPath, fileUrl ?? ""));
     } else if (fileUrl?.startsWith("data:")) {
       href = fileUrl;
     } else if (fileUrl?.startsWith("file://localhost")) {
       const stripped = fileUrl.slice("file://localhost".length);
-      href = await tryEmbedDataUri(cwd, stripped, fileUrl);
+      ({ href, naturalW, naturalH } = await tryEmbedDataUri(cwd, stripped, fileUrl));
     } else if (fileUrl?.startsWith("/")) {
-      href = await tryEmbedDataUri(cwd, fileUrl, fileUrl);
+      ({ href, naturalW, naturalH } = await tryEmbedDataUri(cwd, fileUrl, fileUrl));
     } else if (fileUrl) {
       href = fileUrl;
     } else {
@@ -345,8 +348,19 @@ async function renderImageElement(args: {
   const isLogo = el.role === "logo" || el.type === "logo";
   const parFinal = isLogo ? "xMinYMin meet" : par;
 
+  // Pre-fit the box so Figma can't stretch even if it ignores
+  // preserveAspectRatio. See fitForFigma() for the why.
+  const fitted = fitForFigma({
+    zoneW: el.width,
+    zoneH: el.height,
+    naturalW,
+    naturalH,
+    fit,
+    isLogo,
+  });
+
   return `${openGroup(el, label, layerName)}
-    <image href="${escAttr(href)}" xlink:href="${escAttr(href)}" width="${fmtNum(el.width)}" height="${fmtNum(el.height)}" preserveAspectRatio="${parFinal}"${filterAttr}/>
+    <image href="${escAttr(href)}" xlink:href="${escAttr(href)}" x="${fmtNum(fitted.x)}" y="${fmtNum(fitted.y)}" width="${fmtNum(fitted.width)}" height="${fmtNum(fitted.height)}" preserveAspectRatio="${parFinal}"${filterAttr}/>
   </g>`;
 }
 
@@ -527,11 +541,16 @@ ${scoped}
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+// Returns the embeddable href AND the natural pixel dimensions of the
+// asset. The dimensions feed the Figma pre-fit (see fitForFigma below);
+// they're returned as `null` whenever we couldn't decode them (sharp
+// failed, file missing, remote URL, etc.) so callers can fall back to
+// preserveAspectRatio semantics.
 async function tryEmbedDataUri(
   cwd: string,
   publicPath: string,
   fallbackUrl: string,
-): Promise<string> {
+): Promise<{ href: string; naturalW: number | null; naturalH: number | null }> {
   try {
     const abs = path.join(cwd, "public", publicPath.replace(/^\//, ""));
     const buf = await fs.readFile(abs);
@@ -541,11 +560,68 @@ async function tryEmbedDataUri(
       : ext === "jpg" || ext === "jpeg" ? "image/jpeg"
       : ext === "webp" ? "image/webp"
       : "image/png";
-    return `data:${mime};base64,${buf.toString("base64")}`;
+    const href = `data:${mime};base64,${buf.toString("base64")}`;
+    let naturalW: number | null = null;
+    let naturalH: number | null = null;
+    try {
+      const meta = await sharp(buf).metadata();
+      if (typeof meta.width === "number" && typeof meta.height === "number") {
+        naturalW = meta.width;
+        naturalH = meta.height;
+      }
+    } catch {
+      // sharp can't decode some SVGs without a defined viewBox — that's OK,
+      // we'll fall through to preserveAspectRatio.
+    }
+    return { href, naturalW, naturalH };
   } catch {
     // Fall back to whatever URL we had — Figma will fetch on import.
-    return fallbackUrl || publicPath;
+    return { href: fallbackUrl || publicPath, naturalW: null, naturalH: null };
   }
+}
+
+// Figma's SVG importer does NOT reliably honor `preserveAspectRatio` on
+// `<image>` elements — same quirk the Nano Banana export side-steps with
+// `fitAspect`. So for `contain` fits (logos, product visuals, mockups) we
+// pre-fit the box's width/height to the asset's natural aspect; the box
+// itself already has the right aspect, leaving Figma nothing to stretch.
+//
+// Logos anchor top-left (matches the renderer's CSS object-position).
+// Other contain assets anchor center (matches CSS object-fit: contain).
+//
+// `cover` and `fill` keep the original box and rely on preserveAspectRatio
+// — backgrounds are generated per-canvas so their natural aspect should
+// already match, and `fill` is an explicit "stretch on purpose" choice.
+function fitForFigma(args: {
+  zoneW: number;
+  zoneH: number;
+  naturalW: number | null;
+  naturalH: number | null;
+  fit: string;
+  isLogo: boolean;
+}): { x: number; y: number; width: number; height: number } {
+  const { zoneW, zoneH, naturalW, naturalH, fit, isLogo } = args;
+  const fallback = { x: 0, y: 0, width: zoneW, height: zoneH };
+  if (fit === "cover" || fit === "fill") return fallback;
+  if (!naturalW || !naturalH || naturalW <= 0 || naturalH <= 0) return fallback;
+  const naturalAspect = naturalW / naturalH;
+  const zoneAspect = zoneW / zoneH;
+  let fittedW: number;
+  let fittedH: number;
+  if (naturalAspect > zoneAspect) {
+    fittedW = zoneW;
+    fittedH = fittedW / naturalAspect;
+  } else {
+    fittedH = zoneH;
+    fittedW = fittedH * naturalAspect;
+  }
+  if (isLogo) return { x: 0, y: 0, width: fittedW, height: fittedH };
+  return {
+    x: (zoneW - fittedW) / 2,
+    y: (zoneH - fittedH) / 2,
+    width: fittedW,
+    height: fittedH,
+  };
 }
 
 function mapObjectFitToPreserveAspectRatio(fit: string): string {

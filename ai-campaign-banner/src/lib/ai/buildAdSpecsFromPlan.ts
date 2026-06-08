@@ -56,6 +56,7 @@ import {
   loadGeneratedAssetResolver,
   type GeneratedAssetResolver,
 } from "@/lib/generators/generatedAssetResolver";
+import { applyMexemZones, hasMexemZones } from "@/lib/formats/mexemZones";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Build CampaignAdSpecs from AI concept stubs.
@@ -517,6 +518,11 @@ export function buildAdSpecsForConcept(
       mockup_slot_source: demoAdSpec.composite_metadata.mockup_slot_source,
     };
 
+    const manifest =
+      usesMexemReferenceStyle(context.brandKit) && hasMexemZones(format)
+        ? applyMexemZones(demoAdSpec.manifest, format)
+        : demoAdSpec.manifest;
+
     specs.push({
       ad_id: `ad_${concept.concept_id}_${format}`,
       campaign_id,
@@ -526,7 +532,7 @@ export function buildAdSpecsForConcept(
       canvas_height: size.height,
       channel,
       internal_template_id: demoAdSpec.bannerbearTemplateUid,
-      manifest: demoAdSpec.manifest,
+      manifest,
       visual_selection_metadata,
       status: "draft",
     });
