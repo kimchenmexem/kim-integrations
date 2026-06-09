@@ -783,9 +783,14 @@ function outputCountryName(language: Language): string {
 // Planner auto-render is a convenience, not the source of truth. If headless
 // Chromium gets slow, the saved campaign should still open; the campaign page
 // has its own "Render PNGs now" retry button.
+//
+// 5-minute ceiling instead of 75s: on shared hardware (Render Starter, etc.)
+// 15 banners can easily take 2-3 min end-to-end. 75s was calibrated for a
+// dev laptop and made the deployed flow cancel mid-render, leaving users on
+// the campaign page with empty "not yet rendered" placeholders.
 async function renderCampaignPngs(campaignId: string): Promise<void> {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 75_000);
+  const timeout = window.setTimeout(() => controller.abort(), 300_000);
   try {
     await fetch("/api/render-campaign", {
       method: "POST",
