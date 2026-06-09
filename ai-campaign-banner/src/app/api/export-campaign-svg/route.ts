@@ -86,6 +86,7 @@ export async function GET(request: Request) {
           }
         })();
         const baseUrl =
+          process.env.RENDER_BASE_URL ??
           requestOrigin ??
           process.env.NEXT_PUBLIC_APP_URL ??
           "http://localhost:3000";

@@ -46,11 +46,14 @@ export async function POST(request: Request) {
   // Resolve the base URL. Render hits this same Next server for
   // /render/ad/[adId], so the URL must point back at us. Priority:
   //   1. explicit override in the body
-  //   2. the request's own origin (always correct in dev)
-  //   3. NEXT_PUBLIC_APP_URL (may be production URL)
-  //   4. localhost:3000 default
-  // Putting requestOrigin BEFORE the env var keeps dev working when
-  // NEXT_PUBLIC_APP_URL points at production or a different port.
+  //   2. RENDER_BASE_URL (set in containerized deploys where the
+  //      Next.js standalone server's `request.url` reports its own
+  //      listener — e.g. "https://0.0.0.0:10000" on Render —
+  //      instead of the proxied public URL). Loopback is fastest:
+  //      RENDER_BASE_URL=http://localhost:$PORT.
+  //   3. the request's own origin (always correct in dev)
+  //   4. NEXT_PUBLIC_APP_URL (last-resort public URL)
+  //   5. localhost:3000 default
   const requestOrigin = (() => {
     try {
       return new URL(request.url).origin;
@@ -60,6 +63,7 @@ export async function POST(request: Request) {
   })();
   const baseUrl =
     parsed.data.base_url ??
+    process.env.RENDER_BASE_URL ??
     requestOrigin ??
     process.env.NEXT_PUBLIC_APP_URL ??
     "http://localhost:3000";

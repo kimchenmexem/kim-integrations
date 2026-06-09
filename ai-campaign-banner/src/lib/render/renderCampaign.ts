@@ -163,9 +163,20 @@ async function renderOne(
   const startedAt = new Date().toISOString();
   const warnings: string[] = [];
 
+  // When the deployed instance is gated by HTTP Basic Auth (Render
+  // production), the renderer's `page.goto(baseUrl/render/...)` would hit
+  // the middleware 401. Pass the SAME credentials to Playwright so the
+  // browser context auto-authenticates. No-op in local dev where the
+  // env vars aren't set.
+  const basicAuthUser = process.env.BASIC_AUTH_USER;
+  const basicAuthPass = process.env.BASIC_AUTH_PASSWORD;
   const context = await browser.newContext({
     viewport: { width: ad.canvas_width, height: ad.canvas_height },
     deviceScaleFactor: 1,
+    httpCredentials:
+      basicAuthUser && basicAuthPass
+        ? { username: basicAuthUser, password: basicAuthPass }
+        : undefined,
   });
   const page = await context.newPage();
   page.on("requestfailed", (req) => {
