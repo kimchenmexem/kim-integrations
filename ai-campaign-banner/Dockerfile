@@ -22,6 +22,21 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Materialize the brand-input preview assets that the renderer fetches at
+# /brand-input-preview/* (backgrounds, logos, mockups, decorative elements)
+# AND the composite mockups at /generated-preview-composites/*. Both
+# directories are GITIGNORED — without this step, runtime Playwright pages
+# get 404s for every brand asset and render blank / broken-layout banners.
+#
+# The chain runs read-only file generators (intake → asset copy → seed →
+# mockup composites). All are idempotent and need no API keys at build time.
+RUN npm run brand:intake \
+ && npm run preview:assets \
+ && npm run preview:seed-screenshot-tags \
+ && npm run preview:seed-mockup-manifest \
+ && npm run preview:mockups
+
 RUN npm run build
 
 # Runtime stage — ship the standalone server bundle only.
