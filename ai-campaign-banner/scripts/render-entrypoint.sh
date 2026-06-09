@@ -20,13 +20,21 @@ mkdir -p \
   "${STORAGE_ROOT}/rendered-ads" \
   "${STORAGE_ROOT}/nano-banana"
 
-# Relink each writable path. We replace any baked-in directory with a symlink
-# the first time, then leave the symlink in place on subsequent boots.
+# Replace each writable path with a symlink onto the persistent disk.
+# On the FIRST boot, seed the disk from whatever was baked into the image
+# (e.g. the campaign snapshots committed to data/campaigns/) so the
+# historical list-page entries still resolve. After that, the symlink
+# stays in place across boots and the bundled copy is irrelevant.
 link_to_storage() {
   app_path="$1"
   target="$2"
   if [ -L "$app_path" ]; then
     return
+  fi
+  if [ -d "$app_path" ] && [ -z "$(ls -A "$target" 2>/dev/null)" ]; then
+    # Seed: storage is empty AND we have bundled content → copy it over.
+    # `cp -r .../.` (note the trailing /.) copies hidden files too.
+    cp -r "$app_path/." "$target/" 2>/dev/null || true
   fi
   rm -rf "$app_path"
   ln -s "$target" "$app_path"
