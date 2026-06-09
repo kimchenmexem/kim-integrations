@@ -32,10 +32,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=10000
 ENV HOSTNAME=0.0.0.0
 
-# Non-root user (the playwright image's `pwuser` already exists).
-USER pwuser
-
-# Standalone bundle ships its own slim node_modules with only the runtime deps.
+# Copy as root (WORKDIR creates /app as root). The --chown on COPY sets the
+# OWNERSHIP of the copied CONTENTS to pwuser, but /app itself stays root-
+# owned unless we explicitly chown it. Without that, the entrypoint can't
+# rm/symlink children of /app (writing to /app requires owning it).
 COPY --from=builder --chown=pwuser:pwuser /app/.next/standalone ./
 COPY --from=builder --chown=pwuser:pwuser /app/.next/static ./.next/static
 COPY --from=builder --chown=pwuser:pwuser /app/public ./public
@@ -45,6 +45,11 @@ COPY --from=builder --chown=pwuser:pwuser /app/public ./public
 # (data/, public/rendered-ads/, public/nano-banana/) but those writes land
 # on the persistent volume.
 COPY --chown=pwuser:pwuser scripts/render-entrypoint.sh /app/render-entrypoint.sh
+
+# Make pwuser own /app so the entrypoint can manage child paths.
+RUN chown pwuser:pwuser /app
+
+USER pwuser
 
 EXPOSE 10000
 ENTRYPOINT ["/app/render-entrypoint.sh"]
