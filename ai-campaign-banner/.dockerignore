@@ -1,0 +1,19 @@
+node_modules
+.next
+.git
+.gitignore
+README.md
+*.log
+.env*
+!.env.example
+
+# Local-only artifacts that shouldn't be baked into the image — these
+# directories are populated by running the app and are mounted as a
+# persistent disk on Render (see scripts/render-entrypoint.sh).
+public/brand-input-preview
+public/generated-preview-composites
+public/midjourney-uploads
+public/midjourney-reference-pack
+public/rendered-ads
+public/generated-assets
+public/nano-banana
