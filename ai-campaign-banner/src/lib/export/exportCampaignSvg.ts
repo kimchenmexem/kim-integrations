@@ -75,6 +75,36 @@ export async function exportCampaignSvg(
     `  <text x="${SHEET_PADDING}" y="70" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#52525B">${escXml(plan.campaign_id)} · ${plan.concepts.length} concepts · ${placed.length} banners</text>`,
   );
 
+  // Pre-build each ad's inner SVG IN PARALLEL with bounded concurrency.
+  // Previously this ran serially inside the loop below, which on a slow
+  // box (Render Starter, 0.5 CPU) took ~2s per ad × 45 ads ≈ 90s before
+  // any bytes hit the wire. Render's HTTP proxy times out the connection
+  // at ~100s, so the browser saw "Site wasn't available". Building in
+  // parallel cuts wall-clock by ~4-5× and keeps us comfortably under the
+  // proxy timeout.
+  const CONCURRENCY = 4;
+  const adInners = new Array<string>(placed.length);
+  for (let start = 0; start < placed.length; start += CONCURRENCY) {
+    const slice = placed.slice(start, start + CONCURRENCY);
+    const built = await Promise.all(
+      slice.map(async (item, j) => {
+        const idx = start + j;
+        if (renderedImages.has(item.adId)) return null; // pre-rendered branch — no work
+        const adSvg = await exportAdSvg({
+          plan,
+          adId: item.adId,
+          cwd,
+          embedLocalImages,
+        });
+        return prefixSvgIds(extractSvgInner(adSvg.svg), `ad${idx + 1}_`);
+      }),
+    );
+    for (let j = 0; j < built.length; j += 1) {
+      const inner = built[j];
+      if (inner !== null) adInners[start + j] = inner;
+    }
+  }
+
   let lastConceptId: string | null = null;
   for (let i = 0; i < placed.length; i += 1) {
     const item = placed[i];
@@ -102,31 +132,14 @@ export async function exportCampaignSvg(
     );
     const renderedHref = renderedImages.get(item.adId);
     if (renderedHref) {
-      // `preserveAspectRatio="none"` was the previous default — it
-      // STRETCHES the image to fill the box, which Figma honors
-      // literally and produces visible smearing whenever the rendered
-      // PNG's pixel dimensions don't exactly match `item.width × item.
-      // height` (any sub-pixel drift, density rounding, or canvas-size
-      // mismatch). Switching to `xMidYMid slice` (= CSS object-fit:
-      // cover, centered) preserves aspect AND fills the box: when the
-      // PNG matches the box aspect there's no visible difference, but
-      // when it doesn't, the export crops a few pixels instead of
-      // distorting the entire image.
       pieces.push(
         `    <image href="${escAttr(renderedHref)}" xlink:href="${escAttr(renderedHref)}" x="${fmtNum(item.x)}" y="${fmtNum(item.y)}" width="${fmtNum(item.width)}" height="${fmtNum(item.height)}" preserveAspectRatio="xMidYMid slice"/>`,
       );
     } else {
-      const adSvg = await exportAdSvg({
-        plan,
-        adId: item.adId,
-        cwd,
-        embedLocalImages,
-      });
-      const inner = prefixSvgIds(extractSvgInner(adSvg.svg), `ad${i + 1}_`);
       pieces.push(
         `    <svg x="${fmtNum(item.x)}" y="${fmtNum(item.y)}" width="${fmtNum(item.width)}" height="${fmtNum(item.height)}" viewBox="0 0 ${fmtNum(item.width)} ${fmtNum(item.height)}" overflow="visible">`,
       );
-      pieces.push(inner);
+      pieces.push(adInners[i] ?? "");
       pieces.push(`    </svg>`);
     }
     pieces.push(`  </g>`);

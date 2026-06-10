@@ -98,13 +98,24 @@ export async function GET(request: Request) {
       embedLocalImages: parsed.data.embed !== "0",
       source,
     });
-    return new Response(result.svg, {
+
+    // Gzip the response. For campaigns with 45+ banners and embedded base64
+    // PNGs, the raw SVG can hit 100MB+ — Render's HTTP proxy was dropping
+    // the connection partway through the transfer. SVG (text + base64)
+    // gzips ~10-15× so a 100MB payload becomes ~7-10MB. Every modern
+    // browser AND Figma's SVG importer handle Content-Encoding: gzip
+    // transparently.
+    const { gzipSync } = await import("node:zlib");
+    const gz = gzipSync(Buffer.from(result.svg, "utf8"));
+    return new Response(new Uint8Array(gz), {
       status: 200,
       headers: {
         "Content-Type": "image/svg+xml; charset=utf-8",
+        "Content-Encoding": "gzip",
         "Content-Disposition": `attachment; filename="${result.filename}"`,
-        "Content-Length": String(result.byteLength),
+        "Content-Length": String(gz.byteLength),
         "X-Mexem-Export-Source": result.source,
+        "X-Mexem-Export-Raw-Bytes": String(result.byteLength),
         "Cache-Control": "no-store",
       },
     });
