@@ -28,7 +28,8 @@
     "test:compliance": "ts-node --transpile-only src/test/compliance-sot-tests.ts",
     "test:admin-auth": "ts-node --transpile-only src/test/admin-auth-tests.ts",
     "test:translation-failures": "ts-node --transpile-only src/test/translation-failure-tests.ts",
-    "test:integration": "ts-node --transpile-only src/test/integration-tests.ts"
+    "test:integration": "ts-node --transpile-only src/test/integration-tests.ts",
+    "test:campaign-copy": "ts-node --transpile-only src/test/campaign-copy-failclosed-tests.ts"
   },
   "dependencies": {
     "@clerk/express": "^2.1.7",

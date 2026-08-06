@@ -86,6 +86,54 @@ function requireEnv(key: string): string {
   return v;
 }
 
+// ── JSON-mode retry helper ───────────────────────────────────────────────────
+//
+// Separates two failure classes that MUST be handled differently:
+//   - API failures  (network / auth / rate-limit / timeout): fail fast, no
+//     retry — retrying an auth error just burns latency.
+//   - Parse / schema failures (malformed JSON, missing fields, enum drift):
+//     retry, because a re-roll at a calmer temperature usually satisfies the
+//     schema.
+//
+// The previous implementation wrapped BOTH the API call and JSON.parse in one
+// try/catch and rethrew as an "OpenAI call failed" API error — so invalid JSON
+// on attempt 1 was never retried; only Zod (safeParse) failures were. This
+// helper fixes that: `callModel` throwing propagates immediately, while
+// `parseValidate` throwing is retried.
+//
+// Exported for unit testing (scripts/test-provider-retry.ts).
+
+/** Marks a genuine provider/API failure that must NOT be retried. */
+export class ApiCallError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ApiCallError";
+  }
+}
+
+export async function callWithJsonRetry<T>(
+  callModel: (attempt: number) => Promise<string>,
+  parseValidate: (text: string) => T,
+  maxAttempts = 2,
+): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    // API errors thrown here propagate immediately (fail fast, not retried).
+    const text = await callModel(attempt);
+    try {
+      return parseValidate(text);
+    } catch (err) {
+      // Parse / schema failure — remember it and retry (if attempts remain).
+      lastErr = err;
+    }
+  }
+  throw lastErr instanceof Error
+    ? lastErr
+    : new Error(
+        `AI response failed to parse/validate after ${maxAttempts} attempts: ${JSON.stringify(lastErr).slice(0, 800)}`,
+      );
+}
+
 // ── Generic call into the LLM ───────────────────────────────────────────────
 const SYSTEM_PROMPT = `You are a senior creative director and copywriter for a premium financial-services brand serving self-directed traders. You write campaign concepts the way an award-winning agency would — sharp, specific, never generic.
 
@@ -471,6 +519,12 @@ const OUTPUT_TEMPLATE = `{
       "design_elements": {
         "eyebrow": "ETF TRADING",
         "stat": { "number": "$0", "label": "PER ETF TRADE" }
+      },
+      "visual_intent": {
+        "energy": "calm | confident | dynamic | premium — the concept's mood",
+        "preferredTemplate": "mockup_hero | pattern_immersive | editorial_type (OPTIONAL — omit to let the system choose)",
+        "motifHint": "data | geometric | market | premium | minimal (OPTIONAL)",
+        "imageMood": "professional | platform | abstract | educational (OPTIONAL)"
       }
     }
   ]
@@ -493,7 +547,7 @@ function buildUserPrompt(input: AIProviderInput): string {
     brandKit.legal.disclaimers_by_language?.[brief.language];
   const fallbackDisclaimer =
     localizedFromKit ??
-    (brief.language === "en"
+    (brief.language === "en-GB"
       ? brandKit.legal.default_disclaimer || langMeta.fallbackDisclaimer
       : langMeta.fallbackDisclaimer);
   const cliché = langMeta.bannedClichés.join(", ");
@@ -1199,42 +1253,44 @@ export class OpenAIProvider implements AIProvider {
     // 4th concept as a string, enum-value drift) on a noisy roll. The
     // retry uses temperature 0.6 — calmer than the first pass — so the
     // second attempt is much more likely to satisfy the schema even if
-    // the first was 1.15. API errors (network/auth/rate-limit) are NOT
-    // retried here; they fail fast.
+    // the first was 1.15. Genuine API errors (network/auth/rate-limit) are
+    // wrapped in ApiCallError and fail fast — callWithJsonRetry never retries
+    // those. See callWithJsonRetry for the parse-vs-API split.
     const userPrompt = buildUserPrompt(input);
     const MAX_ATTEMPTS = 2;
-    let lastErr: unknown;
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-      const temperature = attempt === 1 ? baseTemperature : 0.6;
-      let raw: unknown;
-      try {
-        const completion = await client.chat.completions.create({
-          model,
-          response_format: { type: "json_object" },
-          max_tokens: 8192,
-          temperature,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-        });
-        const text = completion.choices[0]?.message?.content ?? "{}";
-        raw = unwrapIfEnveloped(JSON.parse(text));
-      } catch (err) {
-        throw new Error(`OpenAI call failed: ${redact((err as Error).message)}`);
-      }
-      const parsed = AICampaignPlanRawSchema.safeParse(raw);
-      if (parsed.success) return parsed.data;
-      lastErr = parsed.error;
-      // Last attempt — fall through and throw the formatted schema error.
-    }
-    // All retries exhausted. Surface the last validation error in the
-    // same shape the route's error-handler expects.
-    throw lastErr instanceof Error
-      ? lastErr
-      : new Error(
-          `AI response failed schema after ${MAX_ATTEMPTS} attempts: ${JSON.stringify(lastErr).slice(0, 800)}`,
-        );
+    return callWithJsonRetry(
+      async (attempt) => {
+        const temperature = attempt === 1 ? baseTemperature : 0.6;
+        const messages: Array<{ role: "system" | "user"; content: string }> = [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ];
+        // Reinforce strict JSON on any retry after a parse/schema miss.
+        if (attempt > 1) {
+          messages.push({
+            role: "system",
+            content:
+              "Your previous response was NOT valid JSON matching the required schema. " +
+              "Return ONLY a single valid JSON object with the exact shape and field names requested — no prose, no markdown fences, no comments.",
+          });
+        }
+        try {
+          const completion = await client.chat.completions.create({
+            model,
+            response_format: { type: "json_object" },
+            max_tokens: 8192,
+            temperature,
+            messages,
+          });
+          return completion.choices[0]?.message?.content ?? "{}";
+        } catch (err) {
+          // Genuine API failure — fail fast, do not retry.
+          throw new ApiCallError(`OpenAI call failed: ${redact((err as Error).message)}`);
+        }
+      },
+      (text) => AICampaignPlanRawSchema.parse(unwrapIfEnveloped(JSON.parse(text))),
+      MAX_ATTEMPTS,
+    );
   }
 
   // Critique pass — same model, dedicated system prompt. In standard mode

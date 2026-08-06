@@ -41,11 +41,49 @@ export interface FetchCampaignCopyOptions {
 
 export class MarketingTranslatorError extends Error {
   status: number;
-  constructor(status: number, message: string) {
+  /** Parsed structured error body when the translator returned JSON (e.g. the
+   *  compliance_failed 422 payload). Undefined for plain-text errors. */
+  body?: unknown;
+  constructor(status: number, message: string, body?: unknown) {
     super(message);
     this.status = status;
+    this.body = body;
     this.name = "MarketingTranslatorError";
   }
+}
+
+/**
+ * Turn a non-2xx translator response into a structured error. The fail-closed
+ * compliance path returns 422 with { error:"compliance_failed", blockedFields }
+ * — we surface a readable summary so the banner never silently proceeds and an
+ * operator can see which fields blocked generation.
+ */
+async function errorFromResponse(res: Response): Promise<MarketingTranslatorError> {
+  const raw = await res.text().catch(() => "");
+  let body: unknown;
+  try {
+    body = raw ? JSON.parse(raw) : undefined;
+  } catch {
+    body = undefined;
+  }
+  const b = body as
+    | { error?: string; message?: string; blockedFields?: Array<{ conceptId?: string; field?: string; finalAction?: string }> }
+    | undefined;
+  if (res.status === 422 && b?.error === "compliance_failed") {
+    const fields = (b.blockedFields ?? [])
+      .map((f) => `${f.conceptId ? `${f.conceptId}.` : ""}${f.field}=${f.finalAction}`)
+      .join(", ");
+    return new MarketingTranslatorError(
+      422,
+      `marketing-translator blocked copy on compliance: ${fields || b.message || "unknown"}`,
+      body,
+    );
+  }
+  return new MarketingTranslatorError(
+    res.status,
+    `marketing-translator ${res.status}: ${redact(raw).slice(0, 500)}`,
+    body,
+  );
 }
 
 export class MarketingTranslatorConfigError extends Error {
@@ -91,11 +129,7 @@ export async function fetchCampaignCopy(
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new MarketingTranslatorError(
-      res.status,
-      `marketing-translator ${res.status}: ${redact(text).slice(0, 500)}`,
-    );
+    throw await errorFromResponse(res);
   }
 
   const json = (await res.json()) as unknown;
@@ -147,11 +181,7 @@ export async function fetchCampaignCopyBatch(
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new MarketingTranslatorError(
-      res.status,
-      `marketing-translator ${res.status}: ${redact(text).slice(0, 500)}`,
-    );
+    throw await errorFromResponse(res);
   }
 
   const json = (await res.json()) as unknown;

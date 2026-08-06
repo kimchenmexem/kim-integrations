@@ -8,8 +8,12 @@
     "prebuild": "npm run docs:zones",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "docs:zones": "tsx scripts/generate-zone-docs.ts",
     "test:zones": "tsx scripts/validate-zones.ts",
+    "test:provider": "tsx scripts/test-provider-retry.ts",
+    "test:locale": "tsx scripts/test-locale-contract.ts",
+    "test": "npm run test:zones && npm run test:provider && npm run test:locale && npm run test:api-guard && npm run test:visual",
     "brand:intake": "tsx scripts/brand-intake.ts",
     "preview:assets": "tsx scripts/preview-assets.ts",
     "preview:seed-screenshot-tags": "tsx scripts/seed-screenshot-tags.ts",
@@ -36,7 +40,9 @@
     "eval:real-ai": "tsx scripts/eval-real-ai-campaigns.ts",
     "render:code-campaign": "tsx scripts/render-code-campaign.ts",
     "qa:campaign": "tsx scripts/qa-campaign.ts",
-    "mockups:republish": "npm run preview:mockups && tsx scripts/upload-cloudinary-composites.ts --force && npm run render:code-campaign"
+    "mockups:republish": "npm run preview:mockups && tsx scripts/upload-cloudinary-composites.ts --force && npm run render:code-campaign",
+    "test:api-guard": "tsx scripts/test-api-guard.ts",
+    "test:visual": "tsx scripts/test-visual-variation.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LANGUAGES } from "@/lib/i18n/language";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Brand Kit Lite — the brand's source of truth for the MVP.
@@ -432,18 +433,43 @@ export const VisualLanguageSchema = z.object({
 export type VisualLanguage = z.infer<typeof VisualLanguageSchema>;
 
 // ── Legal ────────────────────────────────────────────────────────────────────
-// Per-language disclaimer overrides. Keyed by ISO 639-1 language code (the
-// same set as the campaign brief's `language` field). Optional — when the
+// Per-language disclaimer overrides. Keyed by the same BCP-47 locales as the
+// campaign brief's `language` field (en-GB, fr-FR, …). Optional — when the
 // brief asks for a language with no override, the planner falls back to
 // `default_disclaimer` (English) and lets the AI translate as a last resort.
-export const LegalDisclaimersByLanguageSchema = z.object({
-  en: z.string().optional(),
-  fr: z.string().optional(),
-  it: z.string().optional(),
-  nl: z.string().optional(),
-  ar: z.string().optional(),
-  he: z.string().optional(),
-});
+//
+// Backward compatibility: existing brand-kit JSON keyed by legacy 2-letter
+// codes (en/fr/it/nl) is normalized to locale keys on load; unsupported legacy
+// keys (ar/he) are dropped silently rather than failing the whole brand kit.
+const LEGACY_DISCLAIMER_KEY_ALIASES: Record<string, string> = {
+  en: "en-GB",
+  fr: "fr-FR",
+  it: "it-IT",
+  nl: "nl-NL",
+};
+
+export const LegalDisclaimersByLanguageSchema = z.preprocess(
+  (val) => {
+    if (!val || typeof val !== "object") return val;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+      const norm = (LANGUAGES as readonly string[]).includes(k)
+        ? k
+        : LEGACY_DISCLAIMER_KEY_ALIASES[k];
+      if (norm) out[norm] = v; // drop unsupported keys (ar/he, etc.)
+    }
+    return out;
+  },
+  z.object({
+    "en-GB": z.string().optional(),
+    "fr-FR": z.string().optional(),
+    "it-IT": z.string().optional(),
+    "nl-NL": z.string().optional(),
+    "nl-BE": z.string().optional(),
+    "fr-BE": z.string().optional(),
+    "es-ES": z.string().optional(),
+  }),
+);
 export type LegalDisclaimersByLanguage = z.infer<typeof LegalDisclaimersByLanguageSchema>;
 
 // Topic-keyed appendix disclaimers. Each one is appended to the campaign's

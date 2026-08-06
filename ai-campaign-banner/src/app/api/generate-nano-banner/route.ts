@@ -51,19 +51,12 @@ const BRAND_TEXT_STYLE = {
   backgroundFallback: "#00122C",
 } as const;
 
-// Translator locales → LANG_META keys. The translator emits BCP-47
-// (en-GB, fr-FR, …) while LANG_META is keyed by 2-letter code; we map
-// here so the fallbackDisclaimer + fontStack from the brand pipeline can
-// be reused.
-const LOCALE_TO_LANG: Record<string, Language> = {
-  "en-GB": "en",
-  "fr-FR": "fr",
-  "fr-BE": "fr",
-  "it-IT": "it",
-  "nl-NL": "nl",
-  "nl-BE": "nl",
-  "es-ES": "en", // no Spanish in LANG_META yet → fall back to English disclaimer
-};
+// LANG_META is now keyed by the translator's BCP-47 locales directly, so the
+// translator's `locale` maps 1:1 (Spanish, Belgian variants included). Falls
+// back to en-GB only if an unexpected locale ever appears.
+function langMetaForLocale(locale: string) {
+  return LANG_META[locale as Language] ?? LANG_META["en-GB"];
+}
 
 const FormatSchema = CampaignFormatSchema.refine(
   (f) => (NANO_BANANA_SUPPORTED_FORMATS as readonly string[]).includes(f),
@@ -443,8 +436,7 @@ export async function POST(req: Request) {
     }
 
     // Check layout-fit across every requested format using THIS copy.
-    const lang = LOCALE_TO_LANG[copy.locale] ?? "en";
-    const langMeta = LANG_META[lang];
+    const langMeta = langMetaForLocale(copy.locale);
     const disclaimerForCheck = langMeta.fallbackDisclaimer.endsWith("*")
       ? langMeta.fallbackDisclaimer
       : `${langMeta.fallbackDisclaimer.replace(/\.\s*$/, "")}*`;
@@ -484,8 +476,7 @@ export async function POST(req: Request) {
     translatorTone = `${body.tone}. CRITICAL: produce VERY SHORT copy for micro-banner formats. CTA: max 2 words, ideally 1 word (e.g. "Start", "Open", "Trade"). Headline: max 24 characters. Subheadline: max 36 characters. The text must read clearly at extremely small sizes.`;
   }
   copy = bestCopy!;
-  const lang = LOCALE_TO_LANG[copy.locale] ?? "en";
-  const langMeta = LANG_META[lang];
+  const langMeta = langMetaForLocale(copy.locale);
   const disclaimerWithAsterisk = langMeta.fallbackDisclaimer.endsWith("*")
     ? langMeta.fallbackDisclaimer
     : `${langMeta.fallbackDisclaimer.replace(/\.\s*$/, "")}*`;

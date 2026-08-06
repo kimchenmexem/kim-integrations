@@ -3,6 +3,7 @@
  * Combines semantic and independent validation results into deterministic decisions.
  */
 
+import crypto from "crypto";
 import { LocaleCode, SourceRef } from "@mexem/shared";
 import { validateSemanticCompliance, SemanticValidationResult } from "./semantic-compliance";
 import { validateComplianceIndependently, IndependentValidationResult } from "./independent-validator";
@@ -198,23 +199,66 @@ function buildCaseLogId(): string {
   return `uncertain-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 }
 
-function logUncertainCase(entry: ComplianceDecisionResult): void {
+/**
+ * SHA-256 of the reviewed text, truncated to 16 hex chars. Lets an operator
+ * correlate a log line with a piece of copy WITHOUT the log ever containing
+ * the copy itself: hash the suspect text and grep the log for the digest.
+ */
+function hashText(text: string): string {
+  return crypto.createHash("sha256").update(text, "utf8").digest("hex").slice(0, 16);
+}
+
+/**
+ * Append a REDACTED diagnostic record for an uncertain / borderline decision.
+ *
+ * PRIVACY (Task 5 of the hardening review): this local log file MUST NOT
+ * contain the original source text, the generated marketing copy, matched
+ * evidence fragments, or the validators' verbatim quotes. Those leak
+ * regulated marketing copy into an unstructured plaintext file that has no
+ * access controls. Instead we log:
+ *   - a stable log id + timestamp (to locate the event)
+ *   - a SHA-256 text hash + length (to correlate without revealing content)
+ *   - the locale, decision statuses, risk, confidence, final action
+ *   - issue COUNT + bundle-rule types/severities (codes, never messages)
+ *   - the validator classifications + confidences (numbers, never their notes)
+ *
+ * If the full text is genuinely required for a reviewer/legal workflow it
+ * must be persisted in the database models (which carry access controls and
+ * an audit trail) — never here. This file is diagnostic telemetry only.
+ */
+function logUncertainCase(entry: ComplianceDecisionResult, locale: LocaleCode): void {
   if (!entry.uncertainCaseLogged) return;
 
   const logEntry = {
     id: entry.logId,
     timestamp: new Date().toISOString(),
-    locale: entry.semanticResult ? entry.semanticResult : undefined,
+    locale,
     decision: entry.status,
+    preRewriteStatus: entry.preRewriteStatus,
+    postRewriteStatus: entry.postRewriteStatus,
     riskLevel: entry.riskLevel,
     finalConfidence: entry.finalConfidence,
     finalAction: entry.finalAction,
-    originalText: entry.originalText,
-    issues: entry.issues,
-    semanticResult: entry.semanticResult,
-    independentResult: entry.independentResult,
-    preRewriteStatus: entry.preRewriteStatus,
-    postRewriteStatus: entry.postRewriteStatus
+    // Content references — hash + length only, never the text itself.
+    textSha256: hashText(entry.originalText),
+    textLength: entry.originalText.length,
+    // Codes, not content.
+    issueCount: entry.issues.length,
+    bundleVersion: entry.bundleVersion ?? null,
+    bundleRuleMatches: (entry.bundleRuleMatches ?? []).map((m) => ({
+      ruleType: m.ruleType,
+      severity: m.severity,
+    })),
+    // Validator identity + verdicts — classifications and confidences only,
+    // NOT their `issues` / `violations` arrays (which quote the source text).
+    semantic: {
+      classification: entry.semanticResult?.classification,
+      confidence: entry.semanticResult?.confidence,
+    },
+    independent: {
+      classification: entry.independentResult?.classification,
+      confidence: entry.independentResult?.confidence,
+    },
   };
 
   try {
@@ -395,7 +439,7 @@ export async function makeComplianceDecisionWithValidators(
   if (uncertainCaseLogged) {
     result.uncertainCaseLogged = true;
     result.logId = logId;
-    logUncertainCase(result);
+    logUncertainCase(result, locale);
   }
 
   return result;

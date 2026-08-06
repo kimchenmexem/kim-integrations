@@ -1518,7 +1518,7 @@ export function buildAdSpec(args: BuildAdSpecArgs): DemoAdSpec {
     ...densityLayout,
     cta: { ...densityLayout.cta, width: finalCtaWidth },
   };
-  const langForLayout = LANG_META[args.language ?? "en"];
+  const langForLayout = LANG_META[args.language ?? "en-GB"];
   const composedLayout = applyCompositionFromSpec(
     ctaSizedLayout,
     size,
@@ -1541,7 +1541,7 @@ export function buildAdSpec(args: BuildAdSpecArgs): DemoAdSpec {
     headlineEmphasisStyle: args.headlineEmphasisStyle,
     composition,
     template,
-    language: args.language ?? "en",
+    language: args.language ?? "en-GB",
     patternStyle: args.patternStyle,
     motif: args.motif,
     designElements: args.designElements,

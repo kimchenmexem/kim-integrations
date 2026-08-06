@@ -44,7 +44,7 @@ export const DEFAULT_CAMPAIGN_PLANNER_DEFAULTS = {
   tone: ["confident", "trustworthy", "premium"],
   required_formats: ALL_CAMPAIGN_FORMATS,
   risk_warning_required: true,
-  output_languages: ["en"] as Language[],
+  output_languages: ["en-GB"] as Language[],
   auto_render: true,
   set_active: true,
   creative_mode: "standard" as "standard" | "exploratory",

@@ -19,7 +19,7 @@ import authRouter from "./routes/auth";
 import adminRouter from "./routes/admin";
 import campaignRouter from "./routes/campaign";
 import { requireAuth, requireRole } from "./middleware/auth";
-import { translateLimiter, mutationLimiter } from "./middleware/rateLimit";
+import { translateLimiter, mutationLimiter, campaignCopyLimiter } from "./middleware/rateLimit";
 
 const app = express();
 
@@ -87,8 +87,9 @@ app.use("/api/translate/quick", translateLimiter, quickTranslateRouter);
 app.use("/api/campaign", translateLimiter, campaignRouter);
 // /api/campaign-copy — service-to-service endpoint used by ai-campaign-banner.
 // Auth: CAMPAIGN_COPY_API_KEY (static Bearer) when set, else Clerk. No DB
-// persistence in v1.
-app.use("/api/campaign-copy", campaignCopyRouter);
+// persistence in v1. campaignCopyLimiter is keyed by service identity (the
+// static key the banner presents) rather than IP — see rateLimit.ts.
+app.use("/api/campaign-copy", campaignCopyLimiter, campaignCopyRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });

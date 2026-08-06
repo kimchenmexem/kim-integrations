@@ -4,7 +4,7 @@ MVP that turns a marketing message into rendered banner ads, with a full element
 
 ## Stack
 
-Next.js 16 (App Router) · TypeScript · Tailwind 4 · Zod · Supabase · Cloudinary · Bannerbear · OpenAI / Anthropic · JSZip
+Next.js 16 (App Router) · TypeScript · Tailwind 4 · Zod · Playwright (headless render) · Sharp (compositing) · Supabase · Cloudinary · Bannerbear (optional) · OpenAI / Anthropic (planning) · Google Gemini (Nano Banana, experimental) · JSZip
 
 ## Getting started
 
@@ -31,8 +31,14 @@ Then open `.env.local` and fill in each value:
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Cloudinary dashboard → Account Details |
 | `BANNERBEAR_API_KEY` | Bannerbear → Project → Settings → API key |
 | `BANNERBEAR_TEMPLATE_1200x628` / `_1080x1080` / `_1080x1920` | Bannerbear → Templates → copy each template's UID. Create one template per size. |
+| `MARKETING_TRANSLATOR_API_URL` / `MARKETING_TRANSLATOR_API_KEY` | The translator service URL + a shared token matching its `CAMPAIGN_COPY_API_KEY`. Required to generate real campaigns (copy comes from the translator, not locally). |
+| `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD` | Optional app-wide Basic Auth gate for the deployed service. |
+| `BANNER_INTERNAL_API_KEY` | Server-only key required (in production) on mutation/cost `/api/*` routes. `openssl rand -hex 32`. See "Security & API auth". |
+| `ALLOW_UNAUTHENTICATED_DEV_API` | Local dev only — set `true` to let the local UI call mutation routes without credentials. |
+| `AI_IMAGE_PROVIDER` | Optional. `none` (default) = no paid image generation; `openai` = generate backgrounds via OpenAI Images. |
+| `GEMINI_API_KEY` | Optional — only for the experimental `/nano-banana` route. |
 
-Only fill in the provider you selected with `AI_PROVIDER` — the other can stay empty.
+Only fill in the provider you selected with `AI_PROVIDER` — the other can stay empty. Image generation is **off by default**.
 
 ### 2. Install and run
 
@@ -55,11 +61,14 @@ src/
     assets/                  # uploaded asset library
     settings/                # brand kit, AI provider, template map
     api/
-      generate-campaign/     # POST: create campaign plan
-      render-ad/             # POST: render banner via Bannerbear
+      generate-campaign/     # POST: create campaign plan (AI planning + translator copy)
+      render-campaign/       # POST: render a campaign's ads via headless Chromium (Playwright)
+      render-ad/             # POST: render one ad (code renderer; Bannerbear optional)
+      generate-nano-banner/  # POST: standalone Gemini "Nano Banana" creative (experimental)
       upload-asset/          # POST: upload to Cloudinary
-      export-campaign/       # POST: build ZIP package
-      qa/                    # POST: run deterministic QA
+      export-campaign-zip/   # POST: build ZIP package (also export-campaign-svg / -ad-svg)
+      qa/ · qa-campaign/     # POST: run deterministic QA
+  middleware.ts              # Basic Auth gate + internal-key guard for mutation/cost routes
   lib/
     ai/                      # provider abstraction, planner, midjourney pack
     bannerbear/              # client, render, template map
@@ -82,7 +91,43 @@ docs/                        # ARCHITECTURE.md, ASSUMPTIONS.md
 
 ## Status
 
-This is the project skeleton. Business logic in `src/lib/**` is intentionally stubbed; route handlers return HTTP 501 once Zod validation passes. See `docs/ARCHITECTURE.md` for the intended pipeline.
+The pipeline is implemented and working end-to-end — this is **no longer a skeleton**, and route handlers do real work (they do not return 501). The four moving parts:
+
+- **Deterministic manifest / render pipeline.** Every ad is described by an Element Manifest (typed JSON, the single source of truth). Backgrounds, motifs, patterns and CTAs are generated as SVG; the renderer loads the `/render/ad/[adId]` page and captures a flat PNG via headless Chromium (Playwright). The AI never chooses layout coordinates — only copy/strategy/visual intent.
+- **AI planning / copy generation.** `AI_PROVIDER` (`openai` | `anthropic` | `mock`, default `mock`) writes concept strategy + visual direction. The planner then **overwrites every copy field** (headline / subheadline / cta / disclaimer) with marketing-translator output — the banner does not author marketing copy itself.
+- **Translator integration (fail-closed).** The planner calls marketing-translator `POST /api/campaign-copy/batch`. If the translator returns a non-2xx (including a **422 `compliance_failed`**), the planner treats it as a hard failure and does **not** build or render a manifest with unsafe copy. See "Compliance" below.
+- **Nano Banana / Gemini (experimental).** `/nano-banana` + `POST /api/generate-nano-banner` is a standalone Gemini-image creative path, isolated from the deterministic campaign pipeline. Requires `GEMINI_API_KEY`. Midjourney is manual (the app emits prompt packs; humans run them and upload results).
+
+See `docs/ARCHITECTURE.md` and `docs/SYSTEM_OVERVIEW.md` for the full pipeline.
+
+## Security & API auth
+
+Two server-only layers, both enforced in `src/middleware.ts` (never shipped to the browser — no secret is exposed to clients). See `.env.example` for the variables.
+
+- **Basic Auth** (`BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD`) fronts the whole app. The browser prompts once and resends cached credentials on same-origin fetch, so the UI keeps working. No-op when unset (local dev).
+- **Internal API key** (`BANNER_INTERNAL_API_KEY`) protects every **mutation / cost** `/api/*` route (campaign generation, rendering, exports, uploads, generators, QA, active-campaign/index mutation). Present it as `Authorization: Bearer <key>` or `x-internal-api-key: <key>`. The authenticated browser UI is allowed through via Basic Auth, so the key never needs to live in client code.
+  - **Production fails closed:** if *neither* the internal key *nor* Basic Auth is configured, mutation routes return `503`. Missing credentials → `401`; invalid → `403`; rate limited → `429`.
+  - **Local dev:** set `ALLOW_UNAUTHENTICATED_DEV_API=true` to let the local UI call mutation routes without credentials. Never set this in production.
+  - GET reads (`/api/brand-kit`, `/api/generators/registry`, …) stay public behind Basic Auth only.
+  - A simple in-memory, per-identity rate limiter caps mutation routes (`BANNER_API_RATE_LIMIT_PER_MIN`, default 60). **Per-instance only** — on multi-instance deployments the effective limit is `max × instances`; replace with Redis for a hard cross-instance quota.
+
+## Supported locales
+
+The banner's output languages are exactly the locales marketing-translator can produce compliant copy for (BCP-47):
+
+`en-GB · fr-FR · fr-BE · it-IT · nl-NL · nl-BE · es-ES`
+
+Legacy 2-letter codes are coerced on input (`en→en-GB`, `fr→fr-FR`, `it→it-IT`, `nl→nl-NL`) so old data keeps loading. **Arabic (`ar`) and Hebrew (`he`) are rejected** at schema validation — a cheap `400` before any AI spend — because the translator has no compliant pipeline for them yet. To add a locale, extend `LANGUAGES`/`LANG_META` in `src/lib/i18n/language.ts` **and** the translator's `SUPPORTED_LOCALES`.
+
+## Compliance (fail-closed)
+
+marketing-translator is the sole authority for marketing copy *and* its compliance. `/api/campaign-copy` runs every generated field through the dual-validator decision layer and returns `422 compliance_failed` (with structured `blockedFields`) when any field is blocked or escalated to human review. The banner's translator client surfaces that as a hard error, so unsafe copy can never reach a rendered/exported banner. Deterministic QA additionally verifies `copy_source === "marketing-translator"`, but that is a provenance check, not the compliance gate.
+
+## Determinism
+
+- **Persisted manifest + same assets + same renderer version → deterministic render.** Re-rendering a saved campaign produces the same pixels.
+- **Same input request does NOT guarantee the same campaign id/output.** Each generation mints a fresh `campaign_id` (and non-`mock` providers are non-deterministic by nature). There is no request-level idempotency key today — resubmitting a brief creates a new campaign. If you need idempotency, add an explicit key; it was intentionally left out as it doesn't fit cleanly yet.
+- Campaign index (`data/campaigns/index.generated.json`) and the active pointer (`data/active-campaign.generated.json`) are written **atomically (temp-file + rename) under a file lock** so concurrent generations don't corrupt or lose entries. These locks are single-instance only (see `src/lib/storage/atomicJson.ts`); move this state to a database if scaling past one instance.
 
 ## Scripts
 
@@ -92,6 +137,11 @@ This is the project skeleton. Business logic in `src/lib/**` is intentionally st
 | `npm run build` | production build (also runs typegen) |
 | `npm run start` | run the production build |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` type check |
+| `npm run test` | run all fast tests: zones + provider retry + locale contract + API guard |
+| `npm run test:provider` | provider JSON/schema retry unit test (Task 6) |
+| `npm run test:locale` | locale contract + translator-client 422 fail-closed test (Task 2) |
+| `npm run test:api-guard` | mutation-route auth guard test (Task 1) |
 | `npm run brand:intake` | validate `brand-spec.json` + scan `brand-input/`, write `data/brand-kit-lite.generated.json` and `data/asset-import-plan.generated.json` |
 | `npm run preview:assets` | copy brand-input images to `public/brand-input-preview/` and write `data/asset-preview-map.generated.json` |
 | `npm run preview:mockups` | composite tagged screenshots into device mockups (Sharp) and write `data/mockup-composite-map.generated.json` |

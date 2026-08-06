@@ -6,6 +6,12 @@ import {
   CampaignFormatSchema,
 } from "@/lib/schemas/campaignBrief.schema";
 import { VisualLayoutSpecSchema } from "@/lib/schemas/visualLayoutSpec.schema";
+// visualVariation.ts imports only from the schema layer (visualLayoutSpec +
+// midjourney), never from this file — so this import is acyclic.
+import {
+  VisualIntentSchema,
+  VisualVariationPlanSchema,
+} from "@/lib/ai/visualVariation";
 
 // Re-export for convenience: the campaign format enum is the same one the
 // brief schema defines.
@@ -153,6 +159,11 @@ export const AIConceptStubSchema = z.object({
   desired_visual_context: MidjourneyContextSchema,
   midjourney_prompt_pack: z.array(ConceptMidjourneyPromptSchema).default([]),
   design_elements: ConceptDesignElementsSchema.optional(),
+  // High-level visual mood/preference from the AI. SOFT BIAS ONLY — the
+  // deterministic visual-variation allocator maps these enums to safe
+  // choices; it never receives coordinates/colors. Optional + sanitized, so
+  // an absent or malformed value falls back to pure seeded variety.
+  visual_intent: VisualIntentSchema.optional(),
 });
 export type AIConceptStub = z.infer<typeof AIConceptStubSchema>;
 
@@ -203,6 +214,10 @@ export const CampaignConceptSchema = AIConceptStubSchema.extend({
   // PRNG. New campaigns generated through campaignPlanner.ts persist the
   // spec here so the design choice is reproducible and human-reviewable.
   visual_layout_spec: VisualLayoutSpecSchema.optional(),
+  // The campaign-seeded visual-variation plan used to build the effective
+  // spec above. Persisted for observability + determinism proof. Optional for
+  // backwards compatibility with campaigns saved before this shipped.
+  visual_variation: VisualVariationPlanSchema.optional(),
 });
 export type CampaignConcept = z.infer<typeof CampaignConceptSchema>;
 

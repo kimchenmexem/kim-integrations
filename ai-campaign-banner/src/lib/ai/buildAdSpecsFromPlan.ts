@@ -56,6 +56,13 @@ import {
   loadGeneratedAssetResolver,
   type GeneratedAssetResolver,
 } from "@/lib/generators/generatedAssetResolver";
+import {
+  allocateVisualVariations,
+  buildEffectiveSpec,
+  deriveCampaignVisualSeed,
+  sanitizeVisualIntent,
+  type VisualVariationPlan,
+} from "@/lib/ai/visualVariation";
 import { applyMexemZones, hasMexemZones } from "@/lib/formats/mexemZones";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -639,7 +646,50 @@ export function buildConceptsFromPlan(args: {
     : args.raw.concepts.map((c) => pickMotifForContext(c.desired_visual_context, rng));
   const paletteShift = enforceDiversity ? 3 : 2;
 
+  // ── Controlled visual-diversity layer ──────────────────────────────────────
+  // The high-impact visual dimensions (template family, composition, background
+  // style, palette intensity, motif/pattern, accent, CTA weight, emphasis)
+  // previously funnelled through the per-concept VisualLayoutSpec — which is a
+  // FIXED set of 3 specs in the default mock provider, so every campaign looked
+  // identical (see src/lib/ai/visualVariation.ts for the full root-cause note).
+  //
+  // We now compute a campaign-seeded, cross-concept-distinct, AI-intent-biased
+  // VisualVariationPlan per concept and OVERLAY it onto that spec to produce an
+  // EFFECTIVE spec that varies per campaign. The effective spec flows through
+  // the unchanged mapping/positioning pipeline, so element positions, safe
+  // zones, brand colors/fonts and legal copy are untouched.
+  //
+  // Determinism: the plan is a pure function of the persisted campaign_id
+  // (+ diversity_seed) + VISUAL_VARIATION_VERSION, and the effective spec is
+  // persisted on the concept — so re-rendering a saved campaign is identical.
+  const campaignVisualSeed = deriveCampaignVisualSeed(
+    args.campaign_id,
+    args.brief.diversity_seed,
+  );
+  const variationPlans: VisualVariationPlan[] = allocateVisualVariations({
+    campaignSeed: campaignVisualSeed,
+    concepts: args.raw.concepts.map((c) => ({
+      conceptId: c.concept_id,
+      context: c.desired_visual_context,
+      // Only the small, sanitized visual_intent enum block biases the
+      // allocator — NOT the heavyweight (constant, in mock) spec — so the
+      // default provider still produces fully varied designs across campaigns.
+      intent: sanitizeVisualIntent(c.visual_intent),
+    })),
+    enforceDistinct: enforceDiversity,
+  });
+
   const concepts: CampaignConcept[] = args.raw.concepts.map((c, idx) => {
+    const variation = variationPlans[idx];
+
+    // Overlay the seeded variation onto the AI (or mock) spec → effective spec.
+    const aiSpec = args.visualSpecsByConceptId?.get(c.concept_id);
+    const compositionRng = makeSeededPRNG(`${campaignVisualSeed}::composition::${idx}`);
+    const visualSpec = buildEffectiveSpec(variation, aiSpec, compositionRng);
+
+    // PRNG fallbacks (used only for the few fields the effective spec leaves
+    // unset). Kept for backwards-compatibility of the fallback bundle; the
+    // effective spec is always present now and drives the visible design.
     const template = presetTemplates[idx];
     const compositionPool = COMPOSITIONS_BY_TEMPLATE[template];
     const composition =
@@ -654,12 +704,11 @@ export function buildConceptsFromPlan(args: {
     const gradientAngle = pickGradientAngle(rng);
     const motif = presetMotifs[idx];
 
-    const visualSpec = args.visualSpecsByConceptId?.get(c.concept_id);
-
     return {
       ...c,
       campaign_id: args.campaign_id,
       visual_layout_spec: visualSpec,
+      visual_variation: variation,
       ad_specs: buildAdSpecsForConcept({
         context: args.context,
         brief: args.brief,

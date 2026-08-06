@@ -21,6 +21,7 @@ import {
   CampaignBriefSchema,
   type CampaignBrief,
 } from "@/lib/schemas/campaignBrief.schema";
+import type { Language } from "@/lib/i18n/language";
 import {
   loadAdBuildContext,
   buildConceptsFromPlan,
@@ -40,6 +41,7 @@ import {
   hasBlockingViolations,
   type DeterministicCampaignReport,
 } from "@/lib/qa/deterministicQa";
+import { writeJsonAtomic, withFileLock } from "@/lib/storage/atomicJson";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Campaign Planner — the orchestrator.
@@ -69,6 +71,15 @@ export const ACTIVE_CAMPAIGN_PATH = path.join(
   "data",
   "active-campaign.generated.json",
 );
+
+// Shared lock guarding the campaign index + active-pointer critical section.
+// Both upsertCampaignIndex() and setActiveCampaign() read-modify-write the same
+// index file (and the active pointer), so they must not interleave. Serialised
+// via this one lock. See src/lib/storage/atomicJson.ts for the multi-instance
+// caveat.
+function campaignIndexLockPath(cwd: string): string {
+  return path.join(cwd, "data", "campaigns", ".index.lock");
+}
 
 // Progress events surfaced to the route's streaming layer so the
 // /campaign-planner form can show live status while a generation runs.
@@ -580,14 +591,26 @@ function readTranslatorTimeoutMs(): number {
 // Map the brief's 2-letter language code to the BCP-47 locale that
 // marketing-translator's /api/campaign-copy expects. Unsupported languages
 // return null and block campaign creation instead of using local/AI copy.
-function mapLanguageToLocale(language: string): string | null {
-  const map: Record<string, string> = {
-    en: "en-GB",
-    fr: "fr-FR",
-    it: "it-IT",
-    nl: "nl-NL",
-  };
-  return map[language] ?? null;
+// Banner Language → marketing-translator target locale.
+//
+// Banner languages are ALREADY the translator's BCP-47 locale set (see
+// src/lib/i18n/language.ts), so this is an identity-preserving, EXHAUSTIVE
+// mapping: `Record<Language, ...>` means adding a Language without a mapping
+// is a compile error, and an unsupported locale can never slip through to a
+// paid generation call. Legacy short codes (en/fr/…) are already coerced to
+// locales by LanguageSchema before they reach here.
+const LANGUAGE_TO_TRANSLATOR_LOCALE: Record<Language, string> = {
+  "en-GB": "en-GB",
+  "fr-FR": "fr-FR",
+  "it-IT": "it-IT",
+  "nl-NL": "nl-NL",
+  "nl-BE": "nl-BE",
+  "fr-BE": "fr-BE",
+  "es-ES": "es-ES",
+};
+
+function mapLanguageToLocale(language: Language): string {
+  return LANGUAGE_TO_TRANSLATOR_LOCALE[language];
 }
 
 function designElementsFromTranslator(
@@ -607,7 +630,9 @@ export async function saveCampaignPlan(
   const dir = path.join(cwd, "data", "campaigns", plan.campaign_id);
   await fs.mkdir(dir, { recursive: true });
   const filePath = path.join(dir, "campaign-plan.json");
-  await fs.writeFile(filePath, JSON.stringify(plan, null, 2) + "\n", "utf8");
+  // Atomic write — a concurrent reader never sees a half-written plan. The
+  // path is unique per campaign so no lock is needed here.
+  await writeJsonAtomic(filePath, plan);
   return filePath;
 }
 
@@ -654,31 +679,33 @@ async function upsertCampaignIndex(
   cwd: string,
   plan: CampaignPlan,
 ): Promise<string> {
-  const file = await loadCampaignIndex(cwd);
-  const ad_count = plan.concepts.reduce((acc, c) => acc + c.ad_specs.length, 0);
-  const entry: CampaignIndexEntry = {
-    campaign_id: plan.campaign_id,
-    brand_id: plan.brand_id,
-    campaign_name: plan.campaign_name,
-    ai_provider: plan.ai_provider,
-    concept_count: plan.concepts.length,
-    ad_count,
-    created_at: plan.created_at,
-    active: file.active_campaign_id === plan.campaign_id,
-    rendered: false,
-  };
-  const next: CampaignIndexFile = {
-    generated_at: new Date().toISOString(),
-    active_campaign_id: file.active_campaign_id,
-    campaigns: [
-      entry,
-      ...file.campaigns.filter((c) => c.campaign_id !== plan.campaign_id),
-    ],
-  };
-  const dir = path.join(cwd, "data", "campaigns");
-  await fs.mkdir(dir, { recursive: true });
-  const filePath = path.join(dir, "index.generated.json");
-  await fs.writeFile(filePath, JSON.stringify(next, null, 2) + "\n", "utf8");
+  const filePath = path.join(cwd, "data", "campaigns", "index.generated.json");
+  // Lock the whole read-modify-write so concurrent generations can't clobber
+  // each other's index entry (lost-update race).
+  await withFileLock(campaignIndexLockPath(cwd), async () => {
+    const file = await loadCampaignIndex(cwd);
+    const ad_count = plan.concepts.reduce((acc, c) => acc + c.ad_specs.length, 0);
+    const entry: CampaignIndexEntry = {
+      campaign_id: plan.campaign_id,
+      brand_id: plan.brand_id,
+      campaign_name: plan.campaign_name,
+      ai_provider: plan.ai_provider,
+      concept_count: plan.concepts.length,
+      ad_count,
+      created_at: plan.created_at,
+      active: file.active_campaign_id === plan.campaign_id,
+      rendered: false,
+    };
+    const next: CampaignIndexFile = {
+      generated_at: new Date().toISOString(),
+      active_campaign_id: file.active_campaign_id,
+      campaigns: [
+        entry,
+        ...file.campaigns.filter((c) => c.campaign_id !== plan.campaign_id),
+      ],
+    };
+    await writeJsonAtomic(filePath, next);
+  });
   return filePath;
 }
 
@@ -687,29 +714,29 @@ export async function setActiveCampaign(
   campaign_id: string,
   pointer_path: string,
 ): Promise<void> {
-  const file = await loadCampaignIndex(cwd);
-  const next: CampaignIndexFile = {
-    generated_at: new Date().toISOString(),
-    active_campaign_id: campaign_id,
-    campaigns: file.campaigns.map((c) => ({
-      ...c,
-      active: c.campaign_id === campaign_id,
-    })),
-  };
   const indexPath = path.join(cwd, "data", "campaigns", "index.generated.json");
-  await fs.mkdir(path.dirname(indexPath), { recursive: true });
-  await fs.writeFile(indexPath, JSON.stringify(next, null, 2) + "\n", "utf8");
+  const activePath = path.join(cwd, "data", "active-campaign.generated.json");
+  // Same lock as upsertCampaignIndex — index + active pointer are one logical
+  // transaction and must not interleave with a concurrent index update.
+  await withFileLock(campaignIndexLockPath(cwd), async () => {
+    const file = await loadCampaignIndex(cwd);
+    const next: CampaignIndexFile = {
+      generated_at: new Date().toISOString(),
+      active_campaign_id: campaign_id,
+      campaigns: file.campaigns.map((c) => ({
+        ...c,
+        active: c.campaign_id === campaign_id,
+      })),
+    };
+    await writeJsonAtomic(indexPath, next);
 
-  const activeFile = ActiveCampaignFileSchema.parse({
-    campaign_id,
-    pointer_path: path.relative(cwd, pointer_path),
-    set_at: new Date().toISOString(),
+    const activeFile = ActiveCampaignFileSchema.parse({
+      campaign_id,
+      pointer_path: path.relative(cwd, pointer_path),
+      set_at: new Date().toISOString(),
+    });
+    await writeJsonAtomic(activePath, activeFile);
   });
-  await fs.writeFile(
-    path.join(cwd, "data", "active-campaign.generated.json"),
-    JSON.stringify(activeFile, null, 2) + "\n",
-    "utf8",
-  );
 }
 
 export async function loadActiveCampaignPointer(

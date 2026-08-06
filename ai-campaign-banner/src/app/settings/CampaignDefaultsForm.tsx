@@ -46,12 +46,14 @@ const OUTPUT_COUNTRY_OPTIONS: Array<{
   countryName: string;
   language: Language;
 }> = [
-  { countryName: "United Kingdom", language: "en" },
-  { countryName: "France", language: "fr" },
-  { countryName: "Italy", language: "it" },
-  { countryName: "Netherlands", language: "nl" },
-  { countryName: "United Arab Emirates", language: "ar" },
-  { countryName: "Israel", language: "he" },
+  // Only locales marketing-translator can produce compliant copy for.
+  { countryName: "United Kingdom", language: "en-GB" },
+  { countryName: "France", language: "fr-FR" },
+  { countryName: "Belgium (French)", language: "fr-BE" },
+  { countryName: "Italy", language: "it-IT" },
+  { countryName: "Netherlands", language: "nl-NL" },
+  { countryName: "Belgium (Dutch)", language: "nl-BE" },
+  { countryName: "Spain", language: "es-ES" },
 ];
 
 function linesToArray(value: string): string[] {

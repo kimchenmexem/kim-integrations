@@ -16,10 +16,30 @@ import {
   generateCampaignCopyBatch,
   generateCampaignCopyByMessage,
   UnsupportedLocaleError,
+  CampaignCopyComplianceError,
 } from "../services/campaignCopy";
 import { requireAuthOrApiKey } from "../middleware/serviceAuth";
+import type { Response } from "express";
+import type { CampaignCopyComplianceErrorBody } from "@mexem/shared";
 
 const router = Router();
+
+/**
+ * Fail-closed compliance response. Returns 422 with structured data so the
+ * banner tool can explain exactly why generation stopped (and which fields).
+ * The banner planner treats any non-2xx as a hard failure and never builds a
+ * manifest from unsafe copy.
+ */
+function respondComplianceBlocked(res: Response, err: CampaignCopyComplianceError): Response {
+  const body: CampaignCopyComplianceErrorBody = {
+    error: "compliance_failed",
+    message: err.message,
+    locale: err.locale,
+    blockedFields: err.blockedFields,
+    compliance: err.compliance,
+  };
+  return res.status(422).json(body);
+}
 
 const SUPPORTED_LOCALES = [
   "it-IT", "fr-FR", "nl-NL", "nl-BE", "fr-BE", "es-ES", "en-GB",
@@ -82,6 +102,9 @@ router.post("/", requireAuthOrApiKey, async (req, res) => {
     const result = await generateCampaignCopy(parsed.data);
     return res.json(result);
   } catch (err) {
+    if (err instanceof CampaignCopyComplianceError) {
+      return respondComplianceBlocked(res, err);
+    }
     if (err instanceof UnsupportedLocaleError) {
       return res.status(400).json({ error: err.message });
     }
@@ -116,6 +139,9 @@ router.post("/by-message", requireAuthOrApiKey, async (req, res) => {
     const result = await generateCampaignCopyByMessage(parsed.data);
     return res.json(result);
   } catch (err) {
+    if (err instanceof CampaignCopyComplianceError) {
+      return respondComplianceBlocked(res, err);
+    }
     if (err instanceof UnsupportedLocaleError) {
       return res.status(400).json({ error: err.message });
     }
@@ -138,6 +164,9 @@ router.post("/batch", requireAuthOrApiKey, async (req, res) => {
     const result = await generateCampaignCopyBatch(parsed.data);
     return res.json(result);
   } catch (err) {
+    if (err instanceof CampaignCopyComplianceError) {
+      return respondComplianceBlocked(res, err);
+    }
     if (err instanceof UnsupportedLocaleError) {
       return res.status(400).json({ error: err.message });
     }

@@ -642,18 +642,20 @@ export function convertBrandInputToBrandKitWithProvenance(
       // teams can edit `data/brand-kit-lite.generated.json` directly and
       // re-run the planner without touching code. Empty entries get the
       // default_disclaimer (English) at planner time.
+      // Keyed by the translator's BCP-47 locales (the banner's supported set).
       disclaimers_by_language: {
-        en: disclaimerText,
+        "en-GB": disclaimerText,
         // Each non-English variant matches the English long form including
         // the trailing `*.` marker, which references the bottom-of-page
         // footnote convention. The asterisk is kept consistent across all
         // locales so the brand visual treatment is identical regardless of
         // which language a given banner renders.
-        fr: "Attention. Investir comporte un risque de perte. Des frais tiers et les Conditions générales s'appliquent*.",
-        it: "Attenzione. Investire comporta rischio di perdita. Si applicano commissioni di terzi e Termini e condizioni*.",
-        nl: "Let op. Beleggen brengt risico's met zich mee. Kosten van derden en Algemene voorwaarden zijn van toepassing*.",
-        ar: "تنبيه: الاستثمار ينطوي على مخاطر الخسارة. تنطبق رسوم الأطراف الثالثة والشروط والأحكام*.",
-        he: "אזהרה. השקעה כרוכה בסיכון להפסד. עמלות צד שלישי ותנאי שימוש חלים*.",
+        "fr-FR": "Attention. Investir comporte un risque de perte. Des frais tiers et les Conditions générales s'appliquent*.",
+        "fr-BE": "Attention. Investir comporte un risque de perte. Des frais tiers et les Conditions générales s'appliquent*.",
+        "it-IT": "Attenzione. Investire comporta rischio di perdita. Si applicano commissioni di terzi e Termini e condizioni*.",
+        "nl-NL": "Let op. Beleggen brengt risico's met zich mee. Kosten van derden en Algemene voorwaarden zijn van toepassing*.",
+        "nl-BE": "Let op. Beleggen brengt risico's met zich mee. Kosten van derden en Algemene voorwaarden zijn van toepassing*.",
+        "es-ES": "Atención. Invertir conlleva riesgo de pérdida. Se aplican comisiones de terceros y los Términos y condiciones*.",
       },
       // Topic-specific appendices appended to the general disclaimer when
       // the campaign copy mentions a matching topic. See

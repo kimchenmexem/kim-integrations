@@ -20,9 +20,11 @@ import type {
   CampaignCopyByMessageRequest,
   CampaignCopyByMessageResponse,
   LocaleDirection,
+  CampaignCopyComplianceSummary,
+  FieldComplianceMeta,
 } from "@mexem/shared";
 import { lazyOpenAI, extractTranslation } from "./openaiHelpers";
-import { validateCompliance } from "./compliance";
+import { makeComplianceDecision, type DecisionStatus } from "./decision-layer";
 import { applyLocaleRewrites } from "./translationRewrites";
 
 // Deterministic post-process — re-uses the locale rewrite layer wired into
@@ -169,36 +171,113 @@ function parseModelJson(content: string): RawCopyFromModel {
   return out;
 }
 
-async function aggregateComplianceNotes(
-  copy: RawCopyFromModel,
+// ── Fail-closed compliance evaluation ────────────────────────────────────────
+//
+// Every generated field is run through the full dual-validator decision layer
+// (makeComplianceDecision). Unlike the previous "notes only" aggregation, the
+// verdict now GATES the response:
+//   - auto_approved            → ship the model's text as-is
+//   - rewritten (→ SAFE)       → ship the decision layer's safe finalText
+//   - blocked / escalated      → NOT shippable; the caller fails closed (422)
+//
+// A field is also treated as NOT shippable if the compliance check itself
+// throws (validator/network error) — we must never ship copy we could not
+// verify.
+
+/** Thrown when one or more required/generated fields cannot be safely shipped. */
+export class CampaignCopyComplianceError extends Error {
+  readonly locale: LocaleCode;
+  readonly blockedFields: FieldComplianceMeta[];
+  readonly compliance: CampaignCopyComplianceSummary;
+
+  constructor(locale: LocaleCode, compliance: CampaignCopyComplianceSummary) {
+    const blocked = compliance.fields.filter((f) => !f.shippable);
+    super(
+      `Campaign copy blocked by compliance for ${locale}: ` +
+        blocked.map((f) => `${f.conceptId ? `${f.conceptId}.` : ""}${f.field}=${f.finalAction}`).join(", "),
+    );
+    this.name = "CampaignCopyComplianceError";
+    this.locale = locale;
+    this.blockedFields = blocked;
+    this.compliance = compliance;
+  }
+}
+
+interface EvaluatedField {
+  meta: FieldComplianceMeta;
+  /** Text safe to ship for this field (finalText when rewritten, else the original). */
+  safeText: string;
+}
+
+async function evaluateField(
+  field: string,
+  text: string,
   locale: LocaleCode,
-): Promise<string[]> {
-  const fields: Array<{ label: string; text: string }> = [
-    { label: "headline", text: copy.headline },
-    { label: "subheadline", text: copy.subheadline },
-    { label: "cta", text: copy.cta },
-    { label: "disclaimer", text: copy.disclaimer },
-  ];
-  if (copy.body) fields.push({ label: "body", text: copy.body });
+  conceptId?: string,
+): Promise<EvaluatedField> {
+  try {
+    const d = await makeComplianceDecision(text, locale);
+    const shippable = d.finalAction === "auto_approved" || d.finalAction === "rewritten";
+    const rewritten = d.finalAction === "rewritten" && d.finalText !== text;
+    return {
+      meta: {
+        field,
+        conceptId,
+        status: d.status,
+        finalAction: d.finalAction,
+        confidence: d.finalConfidence,
+        rewritten,
+        shippable,
+        issues: d.issues ?? [],
+      },
+      safeText: rewritten ? d.finalText : text,
+    };
+  } catch (err) {
+    // Fail closed: an unverifiable field is not shippable.
+    console.error(`[campaign-copy] compliance check failed for ${conceptId ? `${conceptId}.` : ""}${field}:`, err);
+    return {
+      meta: {
+        field,
+        conceptId,
+        status: "UNCERTAIN",
+        finalAction: "escalated_to_human_review",
+        confidence: 0,
+        rewritten: false,
+        shippable: false,
+        issues: ["Compliance validation did not complete; failing closed."],
+      },
+      safeText: text,
+    };
+  }
+}
 
-  const results = await Promise.all(
-    fields.map(async (f) => {
-      try {
-        const r = await validateCompliance(f.text, locale);
-        return { label: f.label, ...r };
-      } catch {
-        return null;
-      }
-    }),
+const STATUS_RANK: Record<DecisionStatus, number> = {
+  SAFE: 0,
+  BORDERLINE: 1,
+  UNCERTAIN: 2,
+  NON_COMPLIANT: 3,
+};
+
+function worstStatus(metas: FieldComplianceMeta[]): DecisionStatus {
+  return metas.reduce<DecisionStatus>(
+    (worst, m) => (STATUS_RANK[m.status] > STATUS_RANK[worst] ? m.status : worst),
+    "SAFE",
   );
+}
 
-  // validateCompliance returns `suggestions` as `issues.map(i => "Address: " + i)`
-  // — strictly redundant with `issues`. Report only issues so callers don't
-  // see every violation twice.
+export function summarize(metas: FieldComplianceMeta[]): CampaignCopyComplianceSummary {
+  return {
+    ok: metas.every((m) => m.shippable),
+    decision: worstStatus(metas),
+    fields: metas,
+  };
+}
+
+/** Flatten a concept's per-field issues into the legacy `complianceNotes` string[]. */
+function notesFrom(metas: FieldComplianceMeta[]): string[] {
   const notes: string[] = [];
-  for (const r of results) {
-    if (!r) continue;
-    for (const issue of r.issues ?? []) notes.push(`[${r.label}] ${issue}`);
+  for (const m of metas) {
+    for (const issue of m.issues) notes.push(`[${m.field}] ${issue}`);
   }
   return notes;
 }
@@ -382,41 +461,45 @@ function parseBatchModelJson(
   return out;
 }
 
-async function aggregateBatchComplianceNotes(
+/** Ordered field list for a concept — required fields plus present optionals. */
+function conceptFieldInputs(
+  concept: RawBatchConceptFromModel,
+): Array<{ field: string; text: string }> {
+  const fields: Array<{ field: string; text: string }> = [
+    { field: "headline", text: concept.headline },
+    { field: "subheadline", text: concept.subheadline },
+    { field: "cta", text: concept.cta },
+    { field: "disclaimer", text: concept.disclaimer },
+  ];
+  if (concept.body) fields.push({ field: "body", text: concept.body });
+  // Optional accents — when present, they are rendered text on the banner
+  // so they must pass through the same compliance gate as the rest.
+  if (concept.eyebrow) fields.push({ field: "eyebrow", text: concept.eyebrow });
+  if (concept.kicker) fields.push({ field: "kicker", text: concept.kicker });
+  return fields;
+}
+
+interface EvaluatedConcept {
+  evaluated: EvaluatedField[];
+  summary: CampaignCopyComplianceSummary;
+  /** field → safe text to ship. */
+  safe: Map<string, string>;
+}
+
+async function evaluateConcept(
   concept: RawBatchConceptFromModel,
   locale: LocaleCode,
-): Promise<string[]> {
-  const fields: Array<{ label: string; text: string }> = [
-    { label: "headline", text: concept.headline },
-    { label: "subheadline", text: concept.subheadline },
-    { label: "cta", text: concept.cta },
-    { label: "disclaimer", text: concept.disclaimer },
-  ];
-  if (concept.body) fields.push({ label: "body", text: concept.body });
-  // Optional accents — when present, they are rendered text on the banner
-  // so they must pass through the same compliance check as the rest.
-  if (concept.eyebrow) fields.push({ label: "eyebrow", text: concept.eyebrow });
-  if (concept.kicker) fields.push({ label: "kicker", text: concept.kicker });
-
-  const results = await Promise.all(
-    fields.map(async (f) => {
-      try {
-        const r = await validateCompliance(f.text, locale);
-        return { label: f.label, ...r };
-      } catch {
-        return null;
-      }
-    }),
+): Promise<EvaluatedConcept> {
+  const evaluated = await Promise.all(
+    conceptFieldInputs(concept).map((f) =>
+      evaluateField(f.field, f.text, locale, concept.conceptId),
+    ),
   );
-
-  // See aggregateComplianceNotes: `suggestions` is just `issues` with an
-  // "Address: " prefix — emitting both doubles the noise. Issues only.
-  const notes: string[] = [];
-  for (const r of results) {
-    if (!r) continue;
-    for (const issue of r.issues ?? []) notes.push(`[${r.label}] ${issue}`);
-  }
-  return notes;
+  return {
+    evaluated,
+    summary: summarize(evaluated.map((e) => e.meta)),
+    safe: new Map(evaluated.map((e) => [e.meta.field, e.safeText])),
+  };
 }
 
 export async function generateCampaignCopyBatch(
@@ -451,24 +534,34 @@ export async function generateCampaignCopyBatch(
   const content = extractTranslation(completion);
   const rawConcepts = parseBatchModelJson(content, expectedIds);
 
-  // Compliance validation per concept, all concepts in parallel.
-  const results: CampaignCopyBatchConceptResult[] = await Promise.all(
-    rawConcepts.map(async (c) => {
-      const notes = await aggregateBatchComplianceNotes(c, req.targetLocale);
-      const tag = `batch ${c.conceptId}`;
-      return {
-        conceptId: c.conceptId,
-        headline: rewriteString(c.headline, req.targetLocale, tag)!,
-        subheadline: rewriteString(c.subheadline, req.targetLocale, tag)!,
-        body: rewriteString(c.body, req.targetLocale, tag),
-        cta: rewriteString(c.cta, req.targetLocale, tag)!,
-        disclaimer: rewriteString(c.disclaimer, req.targetLocale, tag)!,
-        eyebrow: rewriteString(c.eyebrow, req.targetLocale, tag),
-        kicker: rewriteString(c.kicker, req.targetLocale, tag),
-        complianceNotes: notes,
-      };
-    }),
+  // Full dual-validator compliance per field, all concepts in parallel.
+  const perConcept = await Promise.all(
+    rawConcepts.map((c) => evaluateConcept(c, req.targetLocale)),
   );
+
+  // Fail closed across the whole batch: the banner needs every concept, so if
+  // any field in any concept is not shippable, block the entire response.
+  const overall = summarize(
+    perConcept.flatMap((p) => p.evaluated.map((e) => e.meta)),
+  );
+  if (!overall.ok) throw new CampaignCopyComplianceError(req.targetLocale, overall);
+
+  const results: CampaignCopyBatchConceptResult[] = rawConcepts.map((c, i) => {
+    const { summary, safe } = perConcept[i];
+    const tag = `batch ${c.conceptId}`;
+    return {
+      conceptId: c.conceptId,
+      headline: rewriteString(safe.get("headline"), req.targetLocale, tag)!,
+      subheadline: rewriteString(safe.get("subheadline"), req.targetLocale, tag)!,
+      body: rewriteString(safe.get("body"), req.targetLocale, tag),
+      cta: rewriteString(safe.get("cta"), req.targetLocale, tag)!,
+      disclaimer: rewriteString(safe.get("disclaimer"), req.targetLocale, tag)!,
+      eyebrow: rewriteString(safe.get("eyebrow"), req.targetLocale, tag),
+      kicker: rewriteString(safe.get("kicker"), req.targetLocale, tag),
+      complianceNotes: notesFrom(summary.fields),
+      compliance: summary,
+    };
+  });
 
   return {
     locale: req.targetLocale,
@@ -496,18 +589,35 @@ export async function generateCampaignCopy(
   });
   const content = extractTranslation(completion);
   const copy = parseModelJson(content);
-  const complianceNotes = await aggregateComplianceNotes(copy, req.targetLocale);
+
+  const inputs: Array<{ field: string; text: string }> = [
+    { field: "headline", text: copy.headline },
+    { field: "subheadline", text: copy.subheadline },
+    { field: "cta", text: copy.cta },
+    { field: "disclaimer", text: copy.disclaimer },
+  ];
+  if (copy.body) inputs.push({ field: "body", text: copy.body });
+
+  const evaluated = await Promise.all(
+    inputs.map((f) => evaluateField(f.field, f.text, req.targetLocale)),
+  );
+  const compliance = summarize(evaluated.map((e) => e.meta));
+  // Fail closed: never return production copy when any field is blocked or
+  // escalated to human review.
+  if (!compliance.ok) throw new CampaignCopyComplianceError(req.targetLocale, compliance);
+  const safe = new Map(evaluated.map((e) => [e.meta.field, e.safeText]));
 
   const tag = "single";
   return {
     locale: req.targetLocale,
     direction: localeDirection(req.targetLocale),
-    headline: rewriteString(copy.headline, req.targetLocale, tag)!,
-    subheadline: rewriteString(copy.subheadline, req.targetLocale, tag)!,
-    body: rewriteString(copy.body, req.targetLocale, tag),
-    cta: rewriteString(copy.cta, req.targetLocale, tag)!,
-    disclaimer: rewriteString(copy.disclaimer, req.targetLocale, tag)!,
-    complianceNotes,
+    headline: rewriteString(safe.get("headline"), req.targetLocale, tag)!,
+    subheadline: rewriteString(safe.get("subheadline"), req.targetLocale, tag)!,
+    body: rewriteString(safe.get("body"), req.targetLocale, tag),
+    cta: rewriteString(safe.get("cta"), req.targetLocale, tag)!,
+    disclaimer: rewriteString(safe.get("disclaimer"), req.targetLocale, tag)!,
+    complianceNotes: notesFrom(compliance.fields),
+    compliance,
   };
 }
 
@@ -734,43 +844,50 @@ export async function generateCampaignCopyByMessage(
 
   // Zip variants[i] from each field into the i-th concept.
   const byKey = new Map(fieldResults.map((r) => [r.key, r.variants]));
-  const concepts: CampaignCopyBatchConceptResult[] = [];
+  const rawConcepts: RawBatchConceptFromModel[] = [];
   for (let i = 0; i < conceptCount; i++) {
-    const conceptId = `concept_${i + 1}`;
-    const headline = byKey.get("headline")![i];
-    const subheadline = byKey.get("subheadline")![i];
+    const raw: RawBatchConceptFromModel = {
+      conceptId: `concept_${i + 1}`,
+      headline: byKey.get("headline")![i],
+      subheadline: byKey.get("subheadline")![i],
+      cta: byKey.get("cta")![i],
+      disclaimer: byKey.get("disclaimer")![i],
+    };
     const body = byKey.get("body")![i];
-    const cta = byKey.get("cta")![i];
-    const disclaimer = byKey.get("disclaimer")![i];
     const eyebrow = byKey.get("eyebrow")![i];
     const kicker = byKey.get("kicker")![i];
-
-    // Compliance per non-empty text field, parallel within a concept.
-    const raw: RawBatchConceptFromModel = {
-      conceptId,
-      headline,
-      subheadline,
-      cta,
-      disclaimer,
-    };
     if (body) raw.body = body;
     if (eyebrow) raw.eyebrow = eyebrow;
     if (kicker) raw.kicker = kicker;
-    const complianceNotes = await aggregateBatchComplianceNotes(raw, req.targetLocale);
-
-    const tag = `by-message ${conceptId}`;
-    concepts.push({
-      conceptId,
-      headline: rewriteString(headline, req.targetLocale, tag)!,
-      subheadline: rewriteString(subheadline, req.targetLocale, tag)!,
-      body: rewriteString(body || undefined, req.targetLocale, tag),
-      cta: rewriteString(cta, req.targetLocale, tag)!,
-      disclaimer: rewriteString(disclaimer, req.targetLocale, tag)!,
-      complianceNotes,
-      eyebrow: rewriteString(eyebrow || undefined, req.targetLocale, tag),
-      kicker: rewriteString(kicker || undefined, req.targetLocale, tag),
-    });
+    rawConcepts.push(raw);
   }
+
+  // Full dual-validator compliance per field, then fail closed across all
+  // concepts (same policy as the batch generator).
+  const perConcept = await Promise.all(
+    rawConcepts.map((c) => evaluateConcept(c, req.targetLocale)),
+  );
+  const overall = summarize(
+    perConcept.flatMap((p) => p.evaluated.map((e) => e.meta)),
+  );
+  if (!overall.ok) throw new CampaignCopyComplianceError(req.targetLocale, overall);
+
+  const concepts: CampaignCopyBatchConceptResult[] = rawConcepts.map((c, i) => {
+    const { summary, safe } = perConcept[i];
+    const tag = `by-message ${c.conceptId}`;
+    return {
+      conceptId: c.conceptId,
+      headline: rewriteString(safe.get("headline"), req.targetLocale, tag)!,
+      subheadline: rewriteString(safe.get("subheadline"), req.targetLocale, tag)!,
+      body: rewriteString(safe.get("body"), req.targetLocale, tag),
+      cta: rewriteString(safe.get("cta"), req.targetLocale, tag)!,
+      disclaimer: rewriteString(safe.get("disclaimer"), req.targetLocale, tag)!,
+      complianceNotes: notesFrom(summary.fields),
+      eyebrow: rewriteString(safe.get("eyebrow"), req.targetLocale, tag),
+      kicker: rewriteString(safe.get("kicker"), req.targetLocale, tag),
+      compliance: summary,
+    };
+  });
 
   return {
     locale: req.targetLocale,
