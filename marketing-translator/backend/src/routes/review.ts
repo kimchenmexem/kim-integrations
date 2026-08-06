@@ -8,6 +8,21 @@ import { upsertActiveForbiddenPhrase } from "../compliance/forbidden/service";
 
 const router = Router();
 
+/**
+ * Thrown inside the review transaction when the output was reviewed by someone
+ * else since the client loaded the queue. Surfaces as HTTP 409 so a stale
+ * reviewer screen can't silently overwrite a decision made in the meantime.
+ */
+class StaleReviewError extends Error {
+  constructor(
+    readonly currentReviewCount: number,
+    readonly expectedReviewCount: number,
+  ) {
+    super("This translation was reviewed by someone else since you loaded it.");
+    this.name = "StaleReviewError";
+  }
+}
+
 const VALID_ISSUE_CODES = [
   "tone",
   "terminology",
@@ -34,6 +49,12 @@ const reviewSchema = z.object({
    * provenance. Idempotent — duplicate submissions reactivate (not error).
    */
   forbiddenPhrases: z.array(z.string().min(1).max(500)).max(50).optional().default([]),
+  /**
+   * Optimistic-concurrency token: the reviewCount the client saw when it loaded
+   * this row. When present, the review is rejected with 409 if another review
+   * has landed since (count drifted). Omitted → no check (backward compatible).
+   */
+  expectedReviewCount: z.number().int().min(0).optional(),
 });
 
 // Create a review for an output. Open to any authenticated user, with
@@ -91,6 +112,20 @@ router.post("/:outputId", requireAuth, async (req, res) => {
     const hasCorrection = trimmedCorrection.length > 0;
 
     const review = await prisma.$transaction(async (tx) => {
+      // Optimistic concurrency guard. If the client sent the reviewCount it saw
+      // at load time and another review has landed since, reject rather than
+      // overwrite the other reviewer's decision. Counted inside the tx so it is
+      // consistent with the create below. This targets the stale-screen case
+      // (reviewers minutes/hours apart); the @@unique on
+      // (translationOutputId, versionNumber) still guards truly-simultaneous
+      // reviews via a unique violation.
+      if (payload.expectedReviewCount !== undefined) {
+        const currentCount = await tx.translationReview.count({ where: { outputId } });
+        if (currentCount !== payload.expectedReviewCount) {
+          throw new StaleReviewError(currentCount, payload.expectedReviewCount);
+        }
+      }
+
       // Create the review record — reviewerUserId is the authoritative actor
       // identity; the legacy free-form `reviewerId` is kept for backward compat.
       const created = await tx.translationReview.create({
@@ -229,6 +264,14 @@ router.post("/:outputId", requireAuth, async (req, res) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors });
+    }
+    if (error instanceof StaleReviewError) {
+      return res.status(409).json({
+        error: "stale_review",
+        message: error.message,
+        currentReviewCount: error.currentReviewCount,
+        expectedReviewCount: error.expectedReviewCount,
+      });
     }
     console.error(error);
     res.status(500).json({ error: "Unable to create review." });

@@ -138,6 +138,14 @@ export interface ReviewRequest {
    * are silently dropped to prevent prompt poisoning.
    */
   forbiddenPhrases?: string[];
+  /**
+   * Optimistic-concurrency token: the number of reviews the client saw on this
+   * output when it loaded the queue. If another review has landed since, the
+   * server rejects with HTTP 409 (`{ error: "stale_review" }`) instead of
+   * silently overwriting the other reviewer's decision. Omit to skip the
+   * check (backward compatible).
+   */
+  expectedReviewCount?: number;
 }
 
 export interface TranslationReview {

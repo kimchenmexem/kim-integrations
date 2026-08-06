@@ -25,6 +25,11 @@ const STATUS_OPTIONS: { id: NonNullable<ReviewQueueFilters["status"]>; label: st
 ];
 
 const PAGE_SIZE = 50;
+// How often the queue re-fetches so a reviewer sees decisions others made
+// without a manual reload. Polling (not push) — simple, robust, and safe on a
+// multi-instance backend. See ReviewPanel's 409 handling for the correctness
+// guard that stops a stale screen from overwriting a fresh decision.
+const POLL_MS = 15000;
 
 export default function ReviewerQueue() {
   const [rows, setRows] = useState<ReviewQueueRow[]>([]);
@@ -55,6 +60,15 @@ export default function ReviewerQueue() {
     void load(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
+
+  // Auto-refresh. Paused while any review panel is open so a poll can't swap
+  // the row out from under an in-progress review; it resumes on close.
+  const anyExpanded = Object.values(expanded).some(Boolean);
+  useEffect(() => {
+    if (anyExpanded) return;
+    const id = setInterval(() => { void load(); }, POLL_MS);
+    return () => clearInterval(id);
+  }, [anyExpanded, load]);
 
   const pageStart = offset + 1;
   const pageEnd = Math.min(offset + rows.length, total);
@@ -145,6 +159,7 @@ export default function ReviewerQueue() {
             {expanded[r.outputId] && (
               <ReviewPanel
                 outputId={r.outputId}
+                expectedReviewCount={r.reviewCount}
                 onReviewSubmitted={() => { void load(); }}
               />
             )}

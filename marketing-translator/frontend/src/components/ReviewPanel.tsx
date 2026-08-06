@@ -37,9 +37,15 @@ export interface ReviewPanelProps {
   onReviewSubmitted?: () => void;
   /** Compact variant for dense grids (smaller fonts, narrower textareas). */
   compact?: boolean;
+  /**
+   * Optimistic-concurrency token: the reviewCount this row had when the queue
+   * loaded it. Sent with the review so the backend can reject (409) if another
+   * reviewer got there first, instead of silently overwriting their decision.
+   */
+  expectedReviewCount?: number;
 }
 
-export default function ReviewPanel({ outputId, onReviewSubmitted, compact = false }: ReviewPanelProps) {
+export default function ReviewPanel({ outputId, onReviewSubmitted, compact = false, expectedReviewCount }: ReviewPanelProps) {
   const role = useUserRole();
   const canFlagForbidden = isReviewerOrAbove(role);
 
@@ -116,12 +122,21 @@ export default function ReviewPanel({ outputId, onReviewSubmitted, compact = fal
         correctedTranslation: correctedTranslation || undefined,
         forbiddenPhrases:
           canFlagForbidden && forbiddenPhrases.length > 0 ? forbiddenPhrases : undefined,
+        expectedReviewCount,
       });
       setSubmitted(true);
       onReviewSubmitted?.();
     } catch (e: any) {
-      const m = e?.response?.data?.error;
-      setErrMsg(typeof m === "string" ? m : "Failed to submit review.");
+      // 409 stale_review: someone else reviewed this row since it loaded.
+      // Don't show a raw error — tell the reviewer and refresh the queue so
+      // they see the current decision instead of overwriting it.
+      if (e?.response?.status === 409 && e?.response?.data?.error === "stale_review") {
+        setErrMsg("Someone else already reviewed this translation. Refreshing to show the latest…");
+        onReviewSubmitted?.();
+      } else {
+        const m = e?.response?.data?.error;
+        setErrMsg(typeof m === "string" ? m : "Failed to submit review.");
+      }
     } finally {
       setSubmitting(false);
     }
